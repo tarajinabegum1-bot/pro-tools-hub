@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - PRO TOOLS HUB</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at center,#1a1a3e 0%,#0a0a1a 70%);}
+.login-box{background:linear-gradient(135deg,#1a1a3e,#0f0f2e);border:2px solid #4a4aff;border-radius:24px;padding:35px 25px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(74,74,255,0.3);animation:fadeInUp .6s ease;}
+.admin-logo{text-align:center;font-size:50px;margin-bottom:10px;}
+.admin-title{text-align:center;font-size:22px;font-weight:800;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px;}
+.admin-sub{text-align:center;color:#6b7280;font-size:13px;margin-bottom:30px;}
+.login-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:15px;outline:none;margin-bottom:14px;transition:all .3s;}
+.login-input:focus{border-color:#4a4aff;box-shadow:0 0 15px rgba(74,74,255,.2);}
+.login-input::placeholder{color:#4b5563;}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#4a4aff,#a78bfa);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 6px 20px rgba(74,74,255,.4);}
+.login-btn:hover{transform:translateY(-2px);}
+.admin-page{display:none;}
+.admin-page.active{display:block;}
+.admin-header{background:linear-gradient(135deg,#1a1a3e,#2d2d7a);padding:15px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #4a4aff;position:sticky;top:0;z-index:100;}
+.admin-header h1{font-size:15px;font-weight:700;background:linear-gradient(90deg,#fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.admin-logout{background:rgba(239,68,68,.2);border:1px solid #ef4444;color:#ef4444;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+.tab-bar{display:flex;background:#0f0f2e;border-bottom:1px solid #1a1a3e;overflow-x:auto;}
+.tab{flex:1;min-width:65px;padding:12px 8px;text-align:center;font-size:11px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;transition:all .3s;white-space:nowrap;}
+.tab.active{color:#a78bfa;border-bottom-color:#4a4aff;background:rgba(74,74,255,.1);}
+.tab-icon{display:block;font-size:18px;margin-bottom:2px;}
+.tab-content{display:none;padding:20px;}
+.tab-content.active{display:block;}
+.admin-card{background:linear-gradient(135deg,#1a1a3e,#0f0f2e);border:1px solid #2d2d6e;border-radius:16px;padding:20px;margin-bottom:16px;}
+.card-title{font-size:15px;font-weight:700;color:#a78bfa;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.a-input{width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:10px;transition:border .3s;}
+.a-input:focus{border-color:#4a4aff;}
+.a-input::placeholder{color:#4b5563;}
+.a-select{width:100%;padding:12px 14px;background:#0f0f2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:10px;}
+.btn-primary{background:linear-gradient(135deg,#4a4aff,#a78bfa);border:none;padding:12px 20px;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px;transition:all .3s;}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);}
+.btn-danger{background:rgba(239,68,68,.2);border:1px solid #ef4444;color:#ef4444;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+.btn-success{background:rgba(34,197,94,.2);border:1px solid #22c55e;color:#22c55e;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+.btn-warning{background:rgba(245,158,11,.2);border:1px solid #f59e0b;color:#f59e0b;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.stat-card{background:linear-gradient(135deg,#1a1a3e,#0f0f2e);border:1px solid #2d2d6e;border-radius:14px;padding:16px;text-align:center;}
+.stat-number{font-size:28px;font-weight:800;background:linear-gradient(90deg,#4a4aff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px;}
+.key-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;margin-bottom:10px;}
+.key-value{font-family:monospace;font-size:14px;color:#60a5fa;font-weight:700;letter-spacing:1px;margin-bottom:6px;word-break:break-all;}
+.key-meta{font-size:12px;color:#9ca3af;margin-bottom:8px;line-height:1.6;}
+.key-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;}
+.badge-premium{background:rgba(74,74,255,.2);color:#a78bfa;border:1px solid #4a4aff;}
+.badge-trial{background:rgba(245,158,11,.2);color:#f59e0b;border:1px solid #f59e0b;}
+.badge-active{background:rgba(34,197,94,.2);color:#22c55e;border:1px solid #22c55e;}
+.badge-inactive{background:rgba(239,68,68,.2);color:#ef4444;border:1px solid #ef4444;}
+.badge-expired{background:rgba(156,163,175,.2);color:#9ca3af;border:1px solid #9ca3af;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.toggle-label{font-size:14px;color:#d1d5db;}
+.toggle{width:50px;height:26px;background:#374151;border-radius:13px;position:relative;cursor:pointer;transition:background .3s;}
+.toggle.on{background:#4a4aff;}
+.toggle::after{content:'';width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .3s;box-shadow:0 2px 5px rgba(0,0,0,.3);}
+.toggle.on::after{left:27px;}
+.generated-key-box{background:rgba(74,74,255,.1);border:2px solid #4a4aff;border-radius:12px;padding:15px;margin-top:12px;text-align:center;display:none;}
+.generated-key-text{font-family:monospace;font-size:18px;color:#a78bfa;font-weight:700;letter-spacing:2px;margin-bottom:10px;}
+.notice-preview{background:linear-gradient(135deg,#f59e0b,#ef4444);padding:10px 15px;border-radius:10px;font-size:13px;margin-bottom:12px;text-align:center;display:none;}
+.price-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.price-label{min-width:85px;font-size:13px;color:#d1d5db;}
+.price-input-sm{flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:13px;outline:none;}
+.loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:15px;}
+.loading-overlay.active{display:flex;}
+.spinner{width:50px;height:50px;border:4px solid rgba(74,74,255,.2);border-top-color:#4a4aff;border-radius:50%;animation:spin .8s linear infinite;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#22c55e;color:#fff;padding:12px 25px;border-radius:25px;font-size:14px;font-weight:600;transition:transform .3s;z-index:9999;white-space:nowrap;}
+.toast.error{background:#ef4444;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.user-table{width:100%;border-collapse:collapse;font-size:12px;}
+.user-table th{background:rgba(74,74,255,.2);padding:10px 8px;text-align:left;color:#a78bfa;font-weight:700;}
+.user-table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05);color:#d1d5db;word-break:break-all;}
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="color:#a78bfa;font-size:14px;font-weight:600;" id="loadingText">Loading...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div class="admin-logo">🛡️</div>
+    <div class="admin-title">Admin Panel</div>
+    <div class="admin-sub">PRO TOOLS HUB - Control Center</div>
+    <input type="text" class="login-input" id="adminUser" placeholder="👤 Username">
+    <input type="password" class="login-input" id="adminPass" placeholder="🔒 Password"
+           onkeydown="if(event.key==='Enter') adminLogin()">
+    <button class="login-btn" onclick="adminLogin()">🚀 Login to Admin</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="admin-page" id="adminDashboard">
+  <div class="admin-header">
+    <h1>🛡️ PRO TOOLS HUB ADMIN</h1>
+    <button class="admin-logout" onclick="adminLogout()">↪ Logout</button>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('dashboard')" id="tab-dashboard"><span class="tab-icon">📊</span>Dashboard</div>
+    <div class="tab" onclick="switchTab('keys')"      id="tab-keys">     <span class="tab-icon">🔑</span>Keys</div>
+    <div class="tab" onclick="switchTab('users')"     id="tab-users">    <span class="tab-icon">👥</span>Users</div>
+    <div class="tab" onclick="switchTab('pricing')"   id="tab-pricing">  <span class="tab-icon">💰</span>Pricing</div>
+    <div class="tab" onclick="switchTab('notice')"    id="tab-notice">   <span class="tab-icon">📢</span>Notice</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="tab-content active" id="content-dashboard">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="admin-card">
+      <div class="card-title">⚡ Quick Actions</div>
+      <button class="btn-primary" onclick="switchTab('keys')">🔑 Manage Keys</button>
+      <button class="btn-primary" onclick="switchTab('notice')">📢 Send Notice</button>
+      <button class="btn-primary" onclick="switchTab('pricing')">💰 Update Pricing</button>
+    </div>
+    <div class="admin-card">
+      <div class="card-title">🔑 Recent Keys</div>
+      <div id="recentKeys"></div>
+    </div>
+  </div>
+
+  <!-- KEYS -->
+  <div class="tab-content" id="content-keys">
+    <div class="admin-card">
+      <div class="card-title">➕ Generate New Key</div>
+      <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:5px;">Key Type</label>
+      <select class="a-select" id="newKeyType" onchange="onKeyTypeChange()">
+        <option value="premium">💎 Premium Key</option>
+        <option value="trial">🔑 Trial Key</option>
+      </select>
+      <div id="premiumOptions">
+        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:5px;">Plan</label>
+        <select class="a-select" id="newKeyPlan">
+          <option value="7">📅 7 Days - ৳1200</option>
+          <option value="15">📅 15 Days - ৳2200</option>
+          <option value="30">📅 30 Days - ৳3300</option>
+          <option value="lifetime">♾️ Lifetime - ৳5500</option>
+        </select>
+      </div>
+      <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:5px;">Custom Key (Optional)</label>
+      <input type="text" class="a-input" id="customKeyInput" placeholder="XXXX-XXXX-XXXX (ফাঁকা রাখলে auto)">
+      <button class="btn-primary" onclick="generateKey()">⚡ Generate Key</button>
+      <div class="generated-key-box" id="generatedKeyBox">
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:5px;">Generated Key:</div>
+        <div class="generated-key-text" id="generatedKeyText"></div>
+        <button class="btn-success" onclick="copyGenKey()">📋 Copy Key</button>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="card-title">📋 All Keys</div>
+      <div class="filter-bar">
+        <button class="btn-success" onclick="filterKeys('all')">All</button>
+        <button class="btn-primary" style="padding:8px 12px;font-size:12px;width:auto;" onclick="filterKeys('premium')">💎 Premium</button>
+        <button class="btn-warning" onclick="filterKeys('trial')">🔑 Trial</button>
+        <button class="btn-danger"  onclick="filterKeys('expired')">⏰ Expired</button>
+      </div>
+      <div id="keyList"></div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="tab-content" id="content-users">
+    <div class="admin-card">
+      <div class="card-title">👥 User Activity</div>
+      <div id="userList" style="overflow-x:auto;"></div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="tab-content" id="content-pricing">
+    <div class="admin-card">
+      <div class="card-title">💰 Pricing & Discounts</div>
+      <div id="pricingAdmin"></div>
+      <button class="btn-primary" onclick="savePricing()">💾 Save Pricing</button>
+    </div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="tab-content" id="content-notice">
+    <div class="admin-card">
+      <div class="card-title">📢 App Notice</div>
+      <div class="toggle-row">
+        <span class="toggle-label">Show Notice in App</span>
+        <div class="toggle" id="noticeToggle" onclick="toggleNotice()"></div>
+      </div>
+      <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:5px;">Notice Text</label>
+      <textarea class="a-input" id="noticeInput" rows="3"
+        placeholder="⚠️ Server Maintenance চলছে..."
+        style="resize:vertical;" oninput="updateNoticePreview()"></textarea>
+      <div class="notice-preview" id="noticePreview"></div>
+      <button class="btn-primary" onclick="saveNotice()">📢 Save & Publish</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="adminToast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, update, remove, onValue }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",
+  authDomain: "pro-tools-hub1-f4d55.firebaseapp.com",
+  databaseURL: "https://pro-tools-hub1-f4d55-default-rtdb.firebaseio.com",
+  projectId: "pro-tools-hub1-f4d55",
+  storageBucket: "pro-tools-hub1-f4d55.firebasestorage.app",
+  messagingSenderId: "637104919815",
+  appId: "1:637104919815:web:198ff9faf881971481a1a2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+const ADMIN_USER = 'Admin123';
+const ADMIN_PASS = 'Tarak420@#';
+let noticeActive = false;
+let currentFilter = 'all';
+
+// ── Loading ──
+function showL(t='Loading...') {
+  document.getElementById('loadingText').textContent = t;
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+function hideL() { document.getElementById('loadingOverlay').classList.remove('active'); }
+
+// ── Toast ──
+function toast(msg, type='success') {
+  const el = document.getElementById('adminToast');
+  el.textContent = msg; el.className = `toast ${type}`;
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── Admin Login ──
+window.adminLogin = async function() {
+  const u = document.getElementById('adminUser').value;
+  const p = document.getElementById('adminPass').value;
+  if (u===ADMIN_USER && p===ADMIN_PASS) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminDashboard').classList.add('active');
+    showL('Loading Dashboard...');
+    await loadDashboard();
+    hideL();
+    toast('✅ Welcome, Admin!');
+  } else {
+    toast('❌ Invalid credentials!','error');
+  }
+};
+
+window.adminLogout = function() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('adminDashboard').classList.remove('active');
+  document.getElementById('adminUser').value = '';
+  document.getElementById('adminPass').value = '';
+};
+
+// ── Tabs ──
+window.switchTab = async function(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById(`content-${tab}`).classList.add('active');
+  showL();
+  if (tab==='dashboard') await loadDashboard();
+  if (tab==='keys')      await loadKeys();
+  if (tab==='users')     await loadUsers();
+  if (tab==='pricing')   await loadPricingAdmin();
+  if (tab==='notice')    await loadNoticeAdmin();
+  hideL();
+};
+
+// ── Dashboard ──
+async function loadDashboard() {
+  const snap = await get(ref(db,'keys'));
+  const keys = snap.exists() ? Object.values(snap.val()) : [];
+  const premium = keys.filter(k=>k.type==='premium').length;
+  const trial   = keys.filter(k=>k.type==='trial').length;
+  const users   = keys.reduce((s,k)=>s+(k.usedBy?Object.keys(k.usedBy).length:0),0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${keys.length}</div><div class="stat-label">🔑 Total Keys</div></div>
+    <div class="stat-card"><div class="stat-number">${users}</div><div class="stat-label">👥 Users</div></div>
+    <div class="stat-card"><div class="stat-number">${premium}</div><div class="stat-label">💎 Premium</div></div>
+    <div class="stat-card"><div class="stat-number">${trial}</div><div class="stat-label">🔑 Trial</div></div>`;
+
+  const recent = keys.slice(-5).reverse();
+  document.getElementById('recentKeys').innerHTML = recent.length
+    ? recent.map(k=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:8px;">
+          <div>
+            <div style="font-family:monospace;font-size:13px;color:#60a5fa;">${k.key||'N/A'}</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:2px;">${k.type==='trial'?'🔑 Trial':'💎 '+(k.plan||'')+' Premium'}</div>
+          </div>
+          <span class="badge ${k.active?'badge-active':'badge-inactive'}">${k.active?'Active':'Off'}</span>
+        </div>`).join('')
+    : '<div style="color:#6b7280;text-align:center;padding:15px;">No keys yet</div>';
+}
+
+// ── Keys ──
+function safeKey(k) { return k.replace(/-/g,'_'); }
+function unsafeKey(k) { return k.replace(/_/g,'-'); }
+
+function getFutureDate(days) {
+  if (days===-1) return null;
+  const d=new Date(); d.setDate(d.getDate()+days); return d.toISOString();
+}
+
+function genRandKey() {
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const s=()=>Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
+  return `${s()}-${s()}-${s()}`;
+}
+
+window.onKeyTypeChange = function() {
+  document.getElementById('premiumOptions').style.display =
+    document.getElementById('newKeyType').value==='premium' ? 'block' : 'none';
+};
+
+window.generateKey = async function() {
+  const type   = document.getElementById('newKeyType').value;
+  const plan   = document.getElementById('newKeyPlan').value;
+  const custom = document.getElementById('customKeyInput').value.trim().toUpperCase();
+  const keyVal = custom || genRandKey();
+
+  showL('Saving Key...');
+  const existing = await get(ref(db,`keys/${safeKey(keyVal)}`));
+  if (existing.exists()) { hideL(); toast('❌ এই Key আগে আছে!','error'); return; }
+
+  const expiry = (type==='premium' && plan!=='lifetime') ? getFutureDate(parseInt(plan)) : null;
+  await set(ref(db,`keys/${safeKey(keyVal)}`), {
+    key: keyVal, type,
+    plan: type==='premium' ? plan : null,
+    expiry, active: true, usedBy: {},
+    createdAt: new Date().toISOString()
+  });
+  hideL();
+
+  document.getElementById('generatedKeyText').textContent = keyVal;
+  document.getElementById('generatedKeyBox').style.display = 'block';
+  document.getElementById('customKeyInput').value = '';
+  toast('✅ Key Generated!');
+  await loadKeys();
+};
+
+window.copyGenKey = function() {
+  const k = document.getElementById('generatedKeyText').textContent;
+  navigator.clipboard.writeText(k).catch(()=>{
+    const el=document.createElement('textarea');
+    el.value=k; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+  });
+  toast('✅ Key Copied!');
+};
+
+window.filterKeys = async function(f) {
+  currentFilter=f; showL(); await loadKeys(); hideL();
+};
+
+async function loadKeys() {
+  const snap = await get(ref(db,'keys'));
+  let keys = snap.exists() ? Object.values(snap.val()) : [];
+
+  if (currentFilter==='premium') keys=keys.filter(k=>k.type==='premium');
+  if (currentFilter==='trial')   keys=keys.filter(k=>k.type==='trial');
+  if (currentFilter==='expired') keys=keys.filter(k=>k.expiry && new Date()>new Date(k.expiry));
+
+  const list = document.getElementById('keyList');
+  if (!keys.length) {
+    list.innerHTML='<div style="color:#6b7280;text-align:center;padding:20px;">No keys found</div>';
+    return;
+  }
+  list.innerHTML = '';
+  [...keys].reverse().forEach(k => {
+    const expired = k.expiry && new Date()>new Date(k.expiry);
+    const expTxt  = k.expiry ? new Date(k.expiry).toLocaleDateString('en-BD') : 'Never';
+    const users   = k.usedBy ? Object.keys(k.usedBy).length : 0;
+    const item    = document.createElement('div');
+    item.className='key-item';
+    item.innerHTML=`
+      <div class="key-value">${k.key||'N/A'}</div>
+      <div class="key-meta">
+        <span class="badge ${k.type==='trial'?'badge-trial':'badge-premium'}">${k.type==='trial'?'🔑 Trial':'💎 Premium'}</span>
+        ${k.plan?`<span class="badge badge-premium" style="margin-left:4px;">${k.plan==='lifetime'?'♾️ Lifetime':'📅 '+k.plan+' Days'}</span>`:''}
+        <span class="badge ${expired?'badge-expired':(k.active?'badge-active':'badge-inactive')}" style="margin-left:4px;">
+          ${expired?'⏰ Expired':(k.active?'✅ Active':'❌ Off')}
+        </span>
+        <br><span style="margin-top:4px;display:inline-block;">📅 Expiry: ${expTxt} | 👤 Users: ${users}</span>
+      </div>
+      <div class="key-actions">
+        <button class="btn-${k.active?'danger':'success'}" onclick="toggleKey('${safeKey(k.key||'')}',${k.active})">
+          ${k.active?'🚫 Disable':'✅ Enable'}
+        </button>
+        <button class="btn-warning" onclick="resetKeyUsers('${safeKey(k.key||'')}')">🔄 Reset</button>
+        <button class="btn-danger"  onclick="deleteKey('${safeKey(k.key||'')}','${k.key||''}')">🗑️ Delete</button>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+window.toggleKey = async function(safeK, currentActive) {
+  showL(); await update(ref(db,`keys/${safeK}`),{active:!currentActive}); hideL();
+  toast(!currentActive?'✅ Key Enabled!':'🚫 Key Disabled!');
+  await loadKeys(); await loadDashboard();
+};
+
+window.resetKeyUsers = async function(safeK) {
+  showL(); await update(ref(db,`keys/${safeK}`),{usedBy:{}}); hideL();
+  toast('🔄 Users Reset!'); await loadKeys();
+};
+
+window.deleteKey = async function(safeK, displayKey) {
+  if (!confirm(`"${displayKey}" Delete করবেন?`)) return;
+  showL(); await remove(ref(db,`keys/${safeK}`)); hideL();
+  toast('🗑️ Key Deleted!'); await loadKeys(); await loadDashboard();
+};
+
+// ── Users ──
+async function loadUsers() {
+  const snap = await get(ref(db,'activity'));
+  const acts = snap.exists() ? Object.values(snap.val()) : [];
+  const html = `
+    <table class="user-table">
+      <thead><tr><th>Key</th><th>Type</th><th>Login Time</th></tr></thead>
+      <tbody>
+        ${acts.length
+          ? [...acts].reverse().map(a=>`
+            <tr>
+              <td style="font-family:monospace;color:#60a5fa;">${a.key||'N/A'}</td>
+              <td><span class="badge ${a.type==='trial'?'badge-trial':'badge-premium'}">${a.type||'?'}</span></td>
+              <td>${a.loginAt?new Date(a.loginAt).toLocaleString('en-BD'):'-'}</td>
+            </tr>`).join('')
+          : '<tr><td colspan="3" style="text-align:center;color:#6b7280;padding:20px;">No activity yet</td></tr>'
+        }
+      </tbody>
+    </table>`;
+  document.getElementById('userList').innerHTML = html;
+}
+
+// ── Pricing ──
+async function loadPricingAdmin() {
+  const snap  = await get(ref(db,'plans'));
+  const plans = snap.exists() ? snap.val() : [];
+  let html    = '';
+  Object.entries(plans).forEach(([idx,plan])=>{
+    const final = plan.discount>0 ? Math.round(plan.price*(1-plan.discount/100)) : plan.price;
+    html += `
+      <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,.08);">
+        <div style="font-weight:700;color:#a78bfa;margin-bottom:10px;">${plan.days===-1?'♾️':'📅'} ${plan.name}</div>
+        <div class="price-row">
+          <span class="price-label">Price (৳)</span>
+          <input type="number" class="price-input-sm" id="price_${idx}" value="${plan.price}">
+        </div>
+        <div class="price-row">
+          <span class="price-label">Discount %</span>
+          <input type="number" class="price-input-sm" id="disc_${idx}" value="${plan.discount}" min="0" max="100">
+        </div>
+        <div style="font-size:12px;color:#22c55e;margin-bottom:8px;">
+          Final: ৳<span id="final_${idx}">${final.toLocaleString()}</span>
+          ${plan.discount>0?`<span style="background:rgba(34,197,94,.1);padding:2px 8px;border-radius:10px;margin-left:5px;">${plan.discount}% OFF</span>`:''}
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#d1d5db;">
+          <input type="checkbox" id="pop_${idx}" ${plan.popular?'checked':''}> ⭐ Mark as Popular
+        </label>
+      </div>`;
+  });
+  document.getElementById('pricingAdmin').innerHTML = html;
+}
+
+window.savePricing = async function() {
+  showL('Saving...');
+  const snap  = await get(ref(db,'plans'));
+  const plans = snap.exists() ? snap.val() : [];
+  const updated = {};
+  Object.entries(plans).forEach(([idx,plan])=>{
+    updated[idx] = {
+      ...plan,
+      price:    parseInt(document.getElementById(`price_${idx}`).value)||plan.price,
+      discount: Math.min(parseInt(document.getElementById(`disc_${idx}`).value)||0,100),
+      popular:  document.getElementById(`pop_${idx}`).checked
+    };
+  });
+  await set(ref(db,'plans'), updated);
+  hideL(); toast('✅ Pricing Updated!');
+  await loadPricingAdmin();
+};
+
+// ── Notice ──
+async function loadNoticeAdmin() {
+  const snap   = await get(ref(db,'notice'));
+  const notice = snap.exists() ? snap.val() : { active:false, text:'' };
+  noticeActive = notice.active;
+  document.getElementById('noticeInput').value = notice.text||'';
+  document.getElementById('noticeToggle').className = `toggle ${noticeActive?'on':''}`;
+  updateNoticePreview();
+}
+
+window.toggleNotice = function() {
+  noticeActive = !noticeActive;
+  document.getElementById('noticeToggle').className = `toggle ${noticeActive?'on':''}`;
+  updateNoticePreview();
+};
+
+window.updateNoticePreview = function() {
+  const text    = document.getElementById('noticeInput').value;
+  const preview = document.getElementById('noticePreview');
+  if (text && noticeActive) { preview.textContent=text; preview.style.display='block'; }
+  else preview.style.display='none';
+};
+
+window.saveNotice = async function() {
+  showL('Publishing...');
+  const text = document.getElementById('noticeInput').value.trim();
+  await set(ref(db,'notice'),{ active:noticeActive, text });
+  hideL(); toast(noticeActive?'📢 Notice Published!':'🔕 Notice Disabled!');
+};
+</script>
+</body>
+</html>
