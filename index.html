@@ -2,967 +2,1053 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>PRO TOOLS HUB</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #6c63ff;
+  --secondary: #f72585;
+  --dark: #0a0a1a;
+  --darker: #050510;
+  --card: #12122a;
+  --card2: #1a1a35;
+  --text: #e0e0ff;
+  --muted: #7878a0;
+  --success: #00e676;
+  --warning: #ffd600;
+  --border: #2a2a50;
+  --gradient: linear-gradient(135deg, #6c63ff, #f72585);
+  --gradient2: linear-gradient(135deg, #0a0a1a, #1a1a35);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #0a0a1a;
-  color: #fff;
+  background: var(--dark);
+  color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
 }
-.header {
-  background: linear-gradient(135deg, #1a1a3e, #2d2d7a);
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 2px solid #4a4aff;
-  box-shadow: 0 4px 20px rgba(74,74,255,0.3);
-  position: sticky;
-  top: 0;
-  z-index: 50;
+
+/* ===== PAGES ===== */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* ===== LOADING OVERLAY ===== */
+#loadingOverlay {
+  position: fixed; inset: 0;
+  background: rgba(5,5,16,0.95);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+  gap: 16px;
 }
-.header h1 {
+#loadingOverlay.hidden { display: none; }
+
+.spinner {
+  width: 50px; height: 50px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== NOTICE BANNER ===== */
+#noticeBanner {
+  background: linear-gradient(90deg, #f72585, #6c63ff);
+  color: white; padding: 10px 16px;
+  font-size: 13px; text-align: center;
+  display: none; position: relative;
+}
+#noticeBanner.show { display: block; }
+
+/* ===== HEADER ===== */
+.app-header {
+  background: var(--card);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.app-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--gradient);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
   font-size: 18px;
+}
+.logo-text { font-size: 16px; font-weight: 700; }
+.logo-sub { font-size: 10px; color: var(--muted); }
+.badge-ultimate {
+  background: var(--gradient);
+  color: white; font-size: 10px;
+  padding: 3px 8px; border-radius: 20px;
   font-weight: 700;
-  letter-spacing: 2px;
-  background: linear-gradient(90deg, #fff, #a78bfa);
+}
+
+/* ===== KEY PAGE ===== */
+#keyPage {
+  align-items: center; justify-content: center;
+  padding: 20px; background: var(--darker);
+  position: relative; overflow: hidden;
+}
+.key-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.05;
+}
+.key-bg-circle:nth-child(1) {
+  width: 300px; height: 300px;
+  background: var(--primary);
+  top: -100px; right: -100px;
+}
+.key-bg-circle:nth-child(2) {
+  width: 200px; height: 200px;
+  background: var(--secondary);
+  bottom: -50px; left: -50px;
+}
+.key-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%; max-width: 380px;
+  position: relative; z-index: 1;
+  box-shadow: 0 20px 60px rgba(108,99,255,0.15);
+}
+.key-icon {
+  width: 70px; height: 70px;
+  background: var(--gradient);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 20px;
+  box-shadow: 0 10px 30px rgba(108,99,255,0.4);
+}
+.key-title { text-align: center; margin-bottom: 6px; }
+.key-title h2 { font-size: 22px; font-weight: 800; }
+.key-title p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.key-input-wrap {
+  position: relative; margin: 24px 0 16px;
+}
+.key-input {
+  width: 100%;
+  background: var(--darker);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 50px 16px 16px;
+  color: var(--text);
+  font-size: 18px;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  letter-spacing: 3px;
+  transition: border-color 0.3s;
+  outline: none;
+}
+.key-input:focus { border-color: var(--primary); }
+.key-input::placeholder { color: var(--muted); letter-spacing: 2px; font-size: 14px; }
+.key-input-icon {
+  position: absolute; right: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted); font-size: 20px;
+}
+
+.btn-unlock {
+  width: 100%;
+  background: var(--gradient);
+  border: none; border-radius: 14px;
+  padding: 16px; color: white;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 25px rgba(108,99,255,0.4);
+}
+.btn-unlock:active { transform: scale(0.97); }
+
+.btn-telegram {
+  width: 100%; margin-top: 12px;
+  background: transparent;
+  border: 2px solid #229ED9;
+  border-radius: 14px;
+  padding: 14px; color: #229ED9;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.2s;
+}
+.btn-telegram:active { background: rgba(34,158,217,0.1); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%; max-width: 360px;
+  text-align: center;
+  border: 1px solid var(--border);
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-icon { font-size: 60px; margin-bottom: 16px; }
+.modal-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.btn-start {
+  width: 100%;
+  background: var(--gradient);
+  border: none; border-radius: 14px;
+  padding: 16px; color: white;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===== SETUP PAGE ===== */
+#setupPage { background: var(--darker); }
+.setup-body { flex: 1; padding: 20px; overflow-y: auto; }
+.section-title {
+  font-size: 12px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px;
+}
+
+.region-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.region-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.region-card.selected {
+  border-color: var(--primary);
+  background: rgba(108,99,255,0.1);
+}
+.region-flag { font-size: 24px; }
+.region-info { flex: 1; }
+.region-name { font-size: 14px; font-weight: 600; }
+.region-type { font-size: 11px; color: var(--muted); }
+.region-check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 12px; transition: all 0.2s;
+}
+.region-card.selected .region-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.count-wrap {
+  background: var(--card);
+  border-radius: 14px; padding: 16px;
+  margin-bottom: 24px;
+}
+.count-label { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.count-control {
+  display: flex; align-items: center; gap: 16px;
+}
+.count-btn {
+  width: 44px; height: 44px;
+  background: var(--card2);
+  border: 2px solid var(--border);
+  border-radius: 12px; color: var(--text);
+  font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+.count-input {
+  flex: 1; text-align: center;
+  background: var(--darker);
+  border: 2px solid var(--border);
+  border-radius: 12px; padding: 10px;
+  color: var(--text); font-size: 20px;
+  font-weight: 700; outline: none;
+}
+
+.btn-start-auto {
+  width: 100%;
+  background: var(--gradient);
+  border: none; border-radius: 16px;
+  padding: 18px; color: white;
+  font-size: 17px; font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(108,99,255,0.4);
+  display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.btn-logout-setup {
+  width: 100%;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 16px; padding: 14px;
+  color: var(--muted); font-size: 14px;
+  cursor: pointer;
+}
+
+/* ===== AUTOMATION PAGE ===== */
+#autoPage { background: #000; flex-direction: column; }
+
+.auto-topbar {
+  background: #1a1a2e;
+  padding: 12px 16px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #2a2a4a;
+}
+.auto-status {
+  display: flex; flex-direction: column;
+}
+.auto-status-label {
+  font-size: 10px; color: var(--muted); text-transform: uppercase;
+}
+.auto-status-val {
+  font-size: 15px; font-weight: 700;
+  color: var(--success);
+}
+.btn-stop {
+  background: var(--secondary);
+  border: none; border-radius: 10px;
+  padding: 8px 18px; color: white;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+}
+
+/* The big fake Google form */
+.auto-screen {
+  flex: 1;
+  background: #ffffff;
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+
+.google-topbar {
+  background: #ffffff;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex; align-items: center; gap: 10px;
+}
+.g-logo {
+  font-size: 22px; font-weight: 800;
+  background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.header-badge {
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #fff;
-}
-.page {
-  display: none;
-  min-height: calc(100vh - 60px);
-  padding: 20px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.page.active { display: flex; }
-/* LICENSE PAGE */
-.license-container {
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  animation: fadeInUp 0.6s ease;
-}
-.app-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.ultimate-badge {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 25px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  display: inline-block;
-  margin-bottom: 35px;
-  box-shadow: 0 4px 15px rgba(245,158,11,0.4);
-}
-.license-label {
-  color: #9ca3af;
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: left;
-}
-.license-input {
-  width: 100%;
-  padding: 16px 20px;
-  background: #1a1a2e;
-  border: 2px solid #2d2d6e;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 16px;
-  letter-spacing: 2px;
-  outline: none;
-  transition: all 0.3s;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-}
-.license-input:focus {
-  border-color: #4a4aff;
-  box-shadow: 0 0 20px rgba(74,74,255,0.3);
-}
-.license-input::placeholder { color: #4b5563; letter-spacing: 2px; }
-.unlock-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #2563eb, #4a4aff);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 16px;
-  box-shadow: 0 6px 20px rgba(37,99,235,0.4);
-  letter-spacing: 1px;
-}
-.unlock-btn:hover { transform: translateY(-2px); }
-.unlock-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-.telegram-btn {
-  width: 100%;
-  padding: 14px;
-  background: rgba(37,99,235,0.1);
-  border: 2px solid rgba(37,99,235,0.3);
-  border-radius: 14px;
-  color: #60a5fa;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-/* MODAL */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(5px);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.active { display: flex; }
-.modal {
-  background: #fff;
-  border-radius: 24px;
-  padding: 35px 25px;
-  width: 100%;
-  max-width: 350px;
-  text-align: center;
-  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.modal-icon { font-size: 60px; margin-bottom: 15px; }
-.modal-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin-bottom: 8px;
-}
-.modal-subtitle { font-size: 14px; color: #6b7280; margin-bottom: 25px; }
-.modal-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #2563eb, #4a4aff);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
-/* SETUP PAGE */
-.setup-container {
-  width: 100%;
-  max-width: 400px;
-  animation: fadeInUp 0.6s ease;
-}
-.setup-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #fff;
-  text-align: center;
-  margin: 15px 0 25px;
-}
-.form-label {
-  color: #9ca3af;
-  font-size: 13px;
-  margin-bottom: 8px;
-  display: block;
-}
-.select-region {
-  width: 100%;
-  padding: 16px 20px;
-  background: #1a1a2e;
-  border: 2px solid #2d2d6e;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  margin-bottom: 20px;
-  transition: all 0.3s;
-  appearance: none;
-  cursor: pointer;
-}
-.select-region option { background: #1a1a2e; }
-.number-input {
-  width: 100%;
-  padding: 16px 20px;
-  background: #1a1a2e;
-  border: 2px solid #2d2d6e;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  margin-bottom: 25px;
-  transition: all 0.3s;
-}
-.number-input:focus { border-color: #4a4aff; }
-.start-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb, #4a4aff);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 12px;
-  box-shadow: 0 6px 20px rgba(37,99,235,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.logout-btn {
-  width: 100%;
-  padding: 14px;
-  background: rgba(255,255,255,0.05);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 14px;
-  color: #9ca3af;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-/* AUTOMATION */
-.automation-container { width: 100%; max-width: 400px; }
-.webview-mock {
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  min-height: 380px;
-}
-.webview-header {
-  background: #f1f3f4;
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid #e0e0e0;
-}
-.webview-url {
+.g-url {
   flex: 1;
-  background: #fff;
-  padding: 6px 12px;
+  background: #f1f3f4;
   border-radius: 20px;
-  font-size: 12px;
-  color: #555;
+  padding: 6px 14px;
+  font-size: 11px; color: #555;
+  white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
 }
-.webview-content { padding: 25px 20px; color: #333; }
-.google-logo-text {
-  font-size: 28px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 20px;
+
+.google-form-body {
+  flex: 1; padding: 24px 20px;
+  overflow-y: auto;
+  background: #fff;
 }
-.google-logo-text span:nth-child(1) { color: #4285F4; }
-.google-logo-text span:nth-child(2) { color: #EA4335; }
-.google-logo-text span:nth-child(3) { color: #FBBC05; }
-.google-logo-text span:nth-child(4) { color: #4285F4; }
-.google-logo-text span:nth-child(5) { color: #34A853; }
-.google-logo-text span:nth-child(6) { color: #EA4335; }
-.auto-form-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #202124;
-  margin-bottom: 5px;
-  text-align: center;
+.g-form-title {
+  font-size: 22px; font-weight: 700;
+  color: #202124; margin-bottom: 6px;
 }
-.auto-form-sub {
-  font-size: 14px;
-  color: #5f6368;
-  text-align: center;
-  margin-bottom: 20px;
+.g-form-sub {
+  font-size: 13px; color: #5f6368;
+  margin-bottom: 24px;
 }
-.auto-input {
+
+.g-field {
+  margin-bottom: 20px; position: relative;
+}
+.g-field-label {
+  font-size: 12px; color: #5f6368;
+  margin-bottom: 6px; font-weight: 500;
+}
+.g-field-input {
   width: 100%;
-  padding: 14px;
-  border: 2px solid #4285F4;
+  border: 2px solid #dadce0;
   border-radius: 8px;
-  font-size: 15px;
-  color: #202124;
-  margin-bottom: 12px;
+  padding: 14px 16px;
+  font-size: 15px; color: #202124;
+  background: #fff;
   outline: none;
+  transition: border-color 0.2s;
+  font-family: 'Courier New', monospace;
+  min-height: 50px;
+}
+.g-field-input.active-field {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+}
+.g-field-input.filled {
+  border-color: #34A853;
+  color: #202124;
+}
+
+.g-cursor {
+  display: inline-block;
+  width: 2px; height: 18px;
+  background: #1a73e8;
+  animation: blink 0.7s infinite;
+  vertical-align: middle;
+  margin-left: 1px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.g-progress-wrap {
+  padding: 0 20px 16px;
   background: #fff;
 }
-.auto-input-label { font-size: 12px; color: #4285F4; margin-bottom: 4px; }
-.status-bar {
-  background: #1a1a2e;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 15px;
-  border-radius: 12px;
+.g-steps {
+  display: flex; gap: 6px;
 }
-.status-text { color: #60a5fa; font-size: 14px; font-weight: 600; }
-.stop-btn {
-  background: rgba(239,68,68,0.2);
-  color: #ef4444;
-  border: 2px solid #ef4444;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
+.g-step {
+  flex: 1; height: 4px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  transition: background 0.5s;
 }
-/* SUCCESS */
-.success-container {
-  width: 100%;
-  max-width: 400px;
-  animation: fadeInUp 0.6s ease;
+.g-step.done { background: #1a73e8; }
+.g-step.active { background: #4285F4; animation: pulse-step 1s infinite; }
+@keyframes pulse-step { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* Checking overlay on auto screen */
+.checking-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.97);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; z-index: 50;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
 }
-.success-icon {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+.checking-overlay.show { opacity: 1; pointer-events: all; }
+.checking-spinner {
+  width: 56px; height: 56px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #1a73e8;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  font-size: 32px;
-  box-shadow: 0 8px 25px rgba(34,197,94,0.4);
+  animation: spin 0.9s linear infinite;
 }
-.success-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-  text-align: center;
-  margin-bottom: 5px;
+.checking-title { font-size: 17px; font-weight: 700; color: #202124; }
+.checking-steps { width: 240px; }
+.check-step-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; font-size: 13px; color: #5f6368;
+  border-bottom: 1px solid #f0f0f0;
+  opacity: 0.4; transition: opacity 0.3s;
 }
-.success-sub {
-  color: #9ca3af;
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 14px;
+.check-step-item.active { opacity: 1; color: #1a73e8; font-weight: 600; }
+.check-step-item.done { opacity: 1; color: #34A853; }
+.check-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #dadce0; flex-shrink: 0;
+  transition: background 0.3s;
 }
+.check-step-item.active .check-dot { background: #1a73e8; }
+.check-step-item.done .check-dot { background: #34A853; }
+
+/* Progress bar bottom */
+.auto-progress-bar {
+  height: 4px;
+  background: var(--border);
+}
+.auto-progress-fill {
+  height: 100%;
+  background: var(--gradient);
+  transition: width 0.5s ease;
+}
+
+/* ===== SUCCESS PAGE ===== */
+#successPage { background: var(--darker); }
+.success-body { flex: 1; padding: 20px; overflow-y: auto; }
+
+.success-header {
+  text-align: center; padding: 20px 0;
+}
+.success-check {
+  width: 80px; height: 80px;
+  background: rgba(0,230,118,0.15);
+  border: 3px solid var(--success);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin: 0 auto 16px;
+  animation: popIn 0.5s ease;
+}
+@keyframes popIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+.success-title { font-size: 22px; font-weight: 800; }
+.success-count {
+  font-size: 14px; color: var(--muted); margin-top: 4px;
+}
+
 .account-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-left: 4px solid #22c55e;
-  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px;
+  margin-bottom: 12px; position: relative;
   overflow: hidden;
 }
-.account-email {
-  color: #2563eb;
-  font-weight: 700;
-  font-size: 15px;
-  margin-bottom: 10px;
-  word-break: break-all;
+.account-card-num {
+  font-size: 10px; font-weight: 700;
+  color: var(--primary); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 10px;
 }
-.account-pass-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f3f4f6;
-  padding: 8px 12px;
-  border-radius: 8px;
+.account-field-row {
   margin-bottom: 10px;
 }
-.account-pass {
-  color: #374151;
-  font-family: monospace;
-  font-size: 14px;
-  letter-spacing: 1px;
+.account-field-label {
+  font-size: 11px; color: var(--muted); margin-bottom: 4px;
 }
-.copy-pass-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
+.account-field-val {
+  font-size: 14px; font-weight: 600;
+  font-family: 'Courier New', monospace;
+  display: flex; align-items: center; gap: 8px;
 }
-.copy-email-btn {
-  width: 100%;
-  padding: 10px;
-  background: rgba(37,99,235,0.1);
-  border: 1px solid rgba(37,99,235,0.3);
-  border-radius: 8px;
-  color: #2563eb;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.blur-content {
+.blur-text {
   filter: blur(6px);
   user-select: none;
   pointer-events: none;
 }
-.trial-lock-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.1);
-  cursor: pointer;
-  z-index: 10;
+.copy-btn-sm {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 10px;
+  color: var(--text); font-size: 11px;
+  cursor: pointer; white-space: nowrap;
+  flex-shrink: 0;
 }
-.reveal-btn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 6px 20px rgba(34,197,94,0.3);
-}
-.copy-all-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #2563eb, #4a4aff);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 6px 20px rgba(37,99,235,0.3);
-}
-/* PREMIUM POPUP */
-.premium-popup {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.premium-popup.active { display: flex; }
-.premium-popup-box {
-  background: linear-gradient(135deg, #1a1a3e, #0f0f2e);
-  border: 2px solid #4a4aff;
-  border-radius: 24px;
-  padding: 30px 25px;
-  width: 100%;
-  max-width: 350px;
-  text-align: center;
-  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 20px 60px rgba(74,74,255,0.3);
-}
-.lock-big { font-size: 50px; margin-bottom: 15px; }
-.premium-popup-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.premium-popup-sub { color: #9ca3af; font-size: 14px; margin-bottom: 20px; }
-.buy-btn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-bottom: 10px;
-}
-.tg-contact-btn {
-  width: 100%;
-  padding: 12px;
-  background: rgba(255,255,255,0.05);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  color: #9ca3af;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 10px;
-  text-decoration: none;
-  display: block;
-}
-.close-popup-btn {
-  background: none;
-  border: none;
-  color: #6b7280;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 8px;
-}
-/* PRICING */
-.pricing-container {
-  width: 100%;
-  max-width: 400px;
-  animation: fadeInUp 0.6s ease;
-}
-.pricing-title {
-  font-size: 24px;
-  font-weight: 800;
-  text-align: center;
-  margin-bottom: 5px;
-}
-.pricing-sub {
-  color: #9ca3af;
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 14px;
-}
-.plan-card {
-  background: linear-gradient(135deg, #1a1a3e, #0f0f2e);
-  border: 2px solid #2d2d6e;
+.copy-btn-sm:disabled { opacity: 0.4; cursor: default; }
+
+.lock-overlay {
+  position: absolute; inset: 0;
+  background: rgba(10,10,26,0.85);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; cursor: pointer;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 15px;
-  position: relative;
-  transition: all 0.3s;
+}
+.lock-overlay-icon { font-size: 28px; }
+.lock-overlay-text { font-size: 12px; color: var(--warning); font-weight: 600; }
+
+.reveal-toggle {
+  background: transparent;
+  border: none; color: var(--primary);
+  font-size: 12px; cursor: pointer;
+  padding: 0; text-decoration: underline;
+}
+
+.success-actions {
+  padding: 16px 20px 30px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.btn-copy-all {
+  width: 100%;
+  background: var(--gradient);
+  border: none; border-radius: 14px;
+  padding: 16px; color: white;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+}
+.btn-reveal-all {
+  width: 100%;
+  background: rgba(108,99,255,0.15);
+  border: 2px solid var(--primary);
+  border-radius: 14px; padding: 14px;
+  color: var(--primary); font-size: 14px;
+  font-weight: 600; cursor: pointer;
+}
+.btn-gen-more {
+  width: 100%;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 14px; padding: 14px;
+  color: var(--text); font-size: 14px;
+  cursor: pointer;
+}
+
+/* ===== PRICING PAGE ===== */
+#pricingPage { background: var(--darker); }
+.pricing-body { flex: 1; padding: 20px; overflow-y: auto; }
+.pricing-header { text-align: center; padding: 20px 0; }
+.pricing-header h2 { font-size: 24px; font-weight: 800; }
+.pricing-header p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+.plan-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 20px; padding: 20px;
+  margin-bottom: 14px; position: relative;
+  overflow: hidden;
 }
 .plan-card.popular {
-  border-color: #4a4aff;
-  box-shadow: 0 8px 30px rgba(74,74,255,0.2);
+  border-color: var(--primary);
+  background: rgba(108,99,255,0.08);
 }
 .popular-tag {
-  position: absolute;
-  top: -12px;
-  right: 15px;
-  background: linear-gradient(135deg, #4a4aff, #a78bfa);
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
+  position: absolute; top: 0; right: 20px;
+  background: var(--gradient);
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 0 0 10px 10px;
 }
-.plan-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 5px; }
-.plan-price { font-size: 28px; font-weight: 800; color: #4a4aff; margin-bottom: 3px; }
-.plan-original {
-  font-size: 14px;
-  color: #ef4444;
-  text-decoration: line-through;
-  margin-bottom: 3px;
-}
-.plan-discount {
-  font-size: 12px;
-  color: #22c55e;
-  font-weight: 700;
-  background: rgba(34,197,94,0.1);
-  padding: 2px 8px;
-  border-radius: 10px;
+.plan-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.plan-duration { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.plan-price-wrap { margin-bottom: 16px; }
+.plan-original { font-size: 14px; color: var(--muted); text-decoration: line-through; }
+.plan-price { font-size: 32px; font-weight: 900; color: var(--text); }
+.plan-price span { font-size: 16px; color: var(--muted); }
+.discount-badge {
   display: inline-block;
-  margin-bottom: 12px;
+  background: var(--success);
+  color: #000; font-size: 10px;
+  font-weight: 800; padding: 2px 8px;
+  border-radius: 20px; margin-left: 8px;
 }
-.plan-features { list-style: none; margin-bottom: 15px; }
-.plan-features li { color: #9ca3af; font-size: 13px; padding: 3px 0; }
-.plan-features li::before { content: "✅ "; }
-.buy-plan-btn {
+.plan-features { list-style: none; margin-bottom: 18px; }
+.plan-features li {
+  font-size: 13px; color: var(--muted);
+  padding: 6px 0; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.plan-features li:last-child { border-bottom: none; }
+.plan-features li::before { content: "✓"; color: var(--success); font-weight: 700; }
+.btn-buy {
   width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, #2563eb, #4a4aff);
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  background: var(--gradient);
+  border: none; border-radius: 12px;
+  padding: 14px; color: white;
+  font-size: 15px; font-weight: 700;
   cursor: pointer;
 }
-/* PAYMENT MODAL */
-.payment-modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 3000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+
+/* Payment Modal */
+.payment-modal-box {
+  background: var(--card);
+  border-radius: 24px; padding: 28px 20px;
+  width: 100%; max-width: 360px;
+  border: 1px solid var(--border);
+  animation: modalIn 0.3s ease;
 }
-.payment-modal.active { display: flex; }
-.payment-box {
-  background: linear-gradient(135deg, #1a1a3e, #0f0f2e);
-  border: 2px solid #4a4aff;
-  border-radius: 24px;
-  padding: 25px;
-  width: 100%;
-  max-width: 350px;
-  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.payment-title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 20px; }
+.payment-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.payment-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
 .payment-method {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 15px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
   margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
 }
-.payment-method-name { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
-.payment-number { font-size: 18px; font-weight: 800; color: #4a4aff; letter-spacing: 1px; }
-.copy-number-btn {
-  background: rgba(74,74,255,0.2);
-  border: 1px solid #4a4aff;
-  color: #a78bfa;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 12px;
+.payment-logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900;
+}
+.bkash-logo { background: #E2136E; color: white; font-size: 12px; }
+.nagad-logo { background: #F05A28; color: white; font-size: 11px; }
+.payment-info { flex: 1; }
+.payment-name { font-size: 13px; font-weight: 700; }
+.payment-num { font-size: 16px; font-weight: 800; font-family: monospace; }
+.btn-copy-pay {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+  color: var(--text); font-size: 12px; cursor: pointer;
+}
+.payment-note {
+  background: rgba(255,214,0,0.1);
+  border: 1px solid rgba(255,214,0,0.3);
+  border-radius: 12px; padding: 12px;
+  font-size: 12px; color: var(--warning);
+  margin-bottom: 16px; text-align: center;
+}
+.btn-tg-pay {
+  width: 100%; background: #229ED9;
+  border: none; border-radius: 12px;
+  padding: 14px; color: white;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; margin-bottom: 10px;
+}
+.btn-close-pay {
+  width: 100%; background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 12px; padding: 12px;
+  color: var(--muted); font-size: 14px;
   cursor: pointer;
-  margin-top: 8px;
 }
-.payment-note { color: #9ca3af; font-size: 12px; text-align: center; margin: 15px 0; }
-.close-payment-btn {
-  width: 100%;
-  padding: 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: #9ca3af;
-  font-size: 14px;
+
+/* ===== PREMIUM REQUIRED POPUP ===== */
+#premiumPopup .modal-box {
+  border: 2px solid var(--warning);
+}
+.popup-icon { font-size: 50px; margin-bottom: 12px; }
+.btn-buy-premium {
+  width: 100%; background: var(--gradient);
+  border: none; border-radius: 14px;
+  padding: 14px; color: white;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-bottom: 10px;
+}
+.btn-tg-premium {
+  width: 100%; background: transparent;
+  border: 2px solid #229ED9;
+  border-radius: 14px; padding: 12px;
+  color: #229ED9; font-size: 13px;
+  cursor: pointer; margin-bottom: 10px;
+  display: flex; align-items: center;
+  justify-content: center; gap: 6px;
+}
+.btn-close-popup {
+  width: 100%; background: transparent;
+  border: none; color: var(--muted);
+  font-size: 13px; padding: 8px;
   cursor: pointer;
 }
-/* NOTICE */
-.notice-banner {
-  display: none;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  padding: 10px 20px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-}
-.notice-banner.active { display: block; }
-/* LOADING */
-.loading-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  z-index: 9000;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 15px;
-}
-.loading-overlay.active { display: flex; }
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(74,74,255,0.2);
-  border-top-color: #4a4aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-.loading-text { color: #a78bfa; font-size: 14px; font-weight: 600; }
-/* TOAST */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: #22c55e;
-  color: #fff;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: transform 0.3s;
-  z-index: 9999;
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 30px; padding: 12px 24px;
+  font-size: 14px; font-weight: 600;
+  z-index: 5000; transition: transform 0.3s;
   white-space: nowrap;
-  box-shadow: 0 8px 25px rgba(34,197,94,0.4);
 }
-.toast.error { background: #ef4444; box-shadow: 0 8px 25px rgba(239,68,68,0.4); }
-.toast.show { transform: translateX(-50%) translateY(0); }
-/* BADGES */
-.expiry-badge {
-  background: rgba(34,197,94,0.1);
-  border: 1px solid #22c55e;
-  color: #22c55e;
-  padding: 6px 15px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 20px;
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* back btn */
+.back-btn {
+  background: transparent; border: none;
+  color: var(--text); font-size: 22px;
+  cursor: pointer; padding: 4px;
 }
-.trial-badge {
-  background: rgba(245,158,11,0.1);
-  border: 1px solid #f59e0b;
-  color: #f59e0b;
-  padding: 6px 15px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 20px;
+
+/* Key plan info badge */
+.key-info-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 10px; padding: 10px 14px;
+  margin-bottom: 20px; font-size: 12px;
 }
-.scroll-area {
-  width: 100%;
-  max-height: 55vh;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-.scroll-area::-webkit-scrollbar { width: 4px; }
-.scroll-area::-webkit-scrollbar-thumb { background: #4a4aff; border-radius: 4px; }
-/* GMAIL LOGO */
-.gmail-logo { width: 80px; height: 80px; margin: 0 auto 20px; }
-.gmail-logo-sm { width: 60px; height: 60px; margin: 0 auto 5px; }
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.pulse { animation: pulse 1s infinite; }
+.key-info-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div class="loading-overlay" id="loadingOverlay">
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Connecting to Server...</div>
+  <p style="color:var(--muted);font-size:14px;">Connecting...</p>
 </div>
 
-<!-- NOTICE -->
-<div class="notice-banner" id="noticeBanner">
-  <span id="noticeText"></span>
-</div>
+<!-- Notice Banner -->
+<div id="noticeBanner"></div>
 
-<!-- HEADER -->
-<div class="header">
-  <h1>PRO TOOLS HUB</h1>
-  <span class="header-badge">PREMIUM</span>
-</div>
+<!-- Toast -->
+<div id="toast"></div>
 
-<!-- PAGE 1: LICENSE -->
-<div class="page active" id="page-license">
-  <div class="license-container">
-    <div class="gmail-logo">
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#4caf50" d="M45,16.2l-5,2.75l-5,4.75L35,40h7c1.657,0,3-1.343,3-3V16.2z"/>
-        <path fill="#1e88e5" d="M3,16.2l3.614,1.71L13,23.7V40H6c-1.657,0-3-1.343-3-3V16.2z"/>
-        <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/>
-        <path fill="#c62828" d="M3,12.298V16.2l10,7.5V11.2L9.876,8.859C9.132,8.301,8.228,8,7.298,8h0C4.924,8,3,9.924,3,12.298z"/>
-        <path fill="#fbc02d" d="M45,12.298V16.2l-10,7.5V11.2l3.124-2.341C38.868,8.301,39.772,8,40.702,8h0C43.076,8,45,9.924,45,12.298z"/>
-      </svg>
+<!-- ===================== KEY PAGE ===================== -->
+<div class="page active" id="keyPage">
+  <div class="key-bg-circle"></div>
+  <div class="key-bg-circle"></div>
+  <div class="key-card">
+    <div class="key-icon">🛡️</div>
+    <div class="key-title">
+      <h2>PRO TOOLS HUB</h2>
+      <p>Enter your license key to continue</p>
     </div>
-    <div class="app-title">Gmail Creator AI</div>
-    <div class="ultimate-badge">👑 ULTIMATE 2026</div>
-    <div class="license-label">Enter License Key</div>
-    <input type="text" class="license-input" id="licenseInput"
-           placeholder="XXXX-XXXX-XXXX" maxlength="14"
-           oninput="formatKey(this)">
-    <button class="unlock-btn" id="unlockBtn" onclick="validateKey()">
-      🔓 Unlock Access
-    </button>
-    <a href="https://t.me/tarakislam1" target="_blank" class="telegram-btn">
+    <div style="text-align:center;margin-top:8px">
+      <span class="badge-ultimate">👑 ULTIMATE 2026</span>
+    </div>
+    <div class="key-input-wrap" style="margin-top:28px">
+      <input class="key-input" id="keyInput" maxlength="14"
+        placeholder="XXXX-XXXX-XXXX" oninput="formatKey(this)">
+      <span class="key-input-icon">🔑</span>
+    </div>
+    <button class="btn-unlock" onclick="validateKey()">🔓 Unlock Access</button>
+    <button class="btn-telegram" onclick="window.open('https://t.me/tarakislam1','_blank')">
       ✈️ Get Key via Telegram
-    </a>
-  </div>
-</div>
-
-<!-- MODAL: UNLOCKED -->
-<div class="modal-overlay" id="premiumModal">
-  <div class="modal">
-    <div class="modal-icon" id="modalIcon">💎</div>
-    <div class="modal-title" id="modalTitle">Premium Unlocked 💎</div>
-    <div class="modal-subtitle" id="modalSubtitle">Full Access via Master Key.</div>
-    <button class="modal-btn" onclick="goToSetup()">Let's Start →</button>
-  </div>
-</div>
-
-<!-- PAGE 2: SETUP -->
-<div class="page" id="page-setup">
-  <div class="setup-container">
-    <div class="gmail-logo-sm" style="text-align:center;">
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="width:60px;height:60px;">
-        <path fill="#4caf50" d="M45,16.2l-5,2.75l-5,4.75L35,40h7c1.657,0,3-1.343,3-3V16.2z"/>
-        <path fill="#1e88e5" d="M3,16.2l3.614,1.71L13,23.7V40H6c-1.657,0-3-1.343-3-3V16.2z"/>
-        <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/>
-        <path fill="#c62828" d="M3,12.298V16.2l10,7.5V11.2L9.876,8.859C9.132,8.301,8.228,8,7.298,8h0C4.924,8,3,9.924,3,12.298z"/>
-        <path fill="#fbc02d" d="M45,12.298V16.2l-10,7.5V11.2l3.124-2.341C38.868,8.301,39.772,8,40.702,8h0C43.076,8,45,9.924,45,12.298z"/>
-      </svg>
-    </div>
-    <div class="setup-title">Setup Task</div>
-    <div id="keyStatusBadge"></div>
-    <label class="form-label">Select Server Region</label>
-    <select class="select-region" id="regionSelect">
-      <option value="us">🇺🇸 United States (Premium)</option>
-      <option value="bd">🇧🇩 Bangladesh (Standard)</option>
-      <option value="in">🇮🇳 India (Standard)</option>
-      <option value="uk">🇬🇧 United Kingdom (Premium)</option>
-      <option value="ca">🇨🇦 Canada (Premium)</option>
-    </select>
-    <label class="form-label">Number of Accounts</label>
-    <input type="number" class="number-input" id="accountCount" value="1" min="1">
-    <button class="start-btn" onclick="startAutomation()">
-      Start Automation 🤖
     </button>
-    <button class="logout-btn" onclick="logout()">↪ Logout</button>
   </div>
 </div>
 
-<!-- PAGE 3: AUTOMATION -->
-<div class="page" id="page-automation">
-  <div class="automation-container">
-    <div class="webview-mock">
-      <div class="webview-header">
-        <div class="webview-url">🔒 accounts.google.com</div>
+<!-- Unlock Modal -->
+<div class="modal-overlay" id="unlockModal">
+  <div class="modal-box">
+    <div class="modal-icon" id="unlockIcon">💎</div>
+    <div class="modal-title" id="unlockTitle">Premium Unlocked!</div>
+    <div class="modal-sub" id="unlockSub">Full access granted</div>
+    <div class="key-info-badge" id="keyInfoBadge">
+      <div class="key-info-dot" style="background:var(--success)"></div>
+      <span id="keyInfoText">License active</span>
+    </div>
+    <button class="btn-start" onclick="startApp()">🚀 Let's Start</button>
+  </div>
+</div>
+
+<!-- ===================== SETUP PAGE ===================== -->
+<div class="page" id="setupPage">
+  <div class="app-header">
+    <div class="app-logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">Gmail Creator AI</div>
+        <div class="logo-sub">PRO TOOLS HUB</div>
       </div>
-      <div class="webview-content" id="automationContent">
-        <div class="google-logo-text">
-          <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+    </div>
+    <span class="badge-ultimate">👑 ULTIMATE</span>
+  </div>
+  <div class="setup-body">
+    <div class="section-title">🌐 Select Server Region</div>
+    <div class="region-list" id="regionList">
+      <div class="region-card selected" onclick="selectRegion(this,'us')" data-region="us">
+        <div class="region-flag">🇺🇸</div>
+        <div class="region-info">
+          <div class="region-name">United States</div>
+          <div class="region-type">⚡ Premium Server</div>
         </div>
-        <div class="auto-form-title">Create a Google Account</div>
-        <div class="auto-form-sub">Enter your name</div>
-        <div class="auto-input-label">First name</div>
-        <input class="auto-input" readonly>
-        <div class="auto-input-label">Last name</div>
-        <input class="auto-input" readonly>
+        <div class="region-check">✓</div>
+      </div>
+      <div class="region-card" onclick="selectRegion(this,'bd')" data-region="bd">
+        <div class="region-flag">🇧🇩</div>
+        <div class="region-info">
+          <div class="region-name">Bangladesh</div>
+          <div class="region-type">🔹 Standard Server</div>
+        </div>
+        <div class="region-check"></div>
+      </div>
+      <div class="region-card" onclick="selectRegion(this,'in')" data-region="in">
+        <div class="region-flag">🇮🇳</div>
+        <div class="region-info">
+          <div class="region-name">India</div>
+          <div class="region-type">🔹 Standard Server</div>
+        </div>
+        <div class="region-check"></div>
+      </div>
+      <div class="region-card" onclick="selectRegion(this,'uk')" data-region="uk">
+        <div class="region-flag">🇬🇧</div>
+        <div class="region-info">
+          <div class="region-name">United Kingdom</div>
+          <div class="region-type">⚡ Premium Server</div>
+        </div>
+        <div class="region-check"></div>
+      </div>
+      <div class="region-card" onclick="selectRegion(this,'ca')" data-region="ca">
+        <div class="region-flag">🇨🇦</div>
+        <div class="region-info">
+          <div class="region-name">Canada</div>
+          <div class="region-type">⚡ Premium Server</div>
+        </div>
+        <div class="region-check"></div>
       </div>
     </div>
-    <div class="status-bar">
-      <span class="status-text" id="statusText">Creating: 1 / 1</span>
-      <button class="stop-btn" onclick="stopAutomation()">STOP</button>
+
+    <div class="section-title">📊 Number of Accounts</div>
+    <div class="count-wrap">
+      <div class="count-label">How many Gmail accounts?</div>
+      <div class="count-control">
+        <button class="count-btn" onclick="changeCount(-1)">−</button>
+        <input class="count-input" id="countInput" value="1" type="number" min="1" max="999" oninput="clampCount()">
+        <button class="count-btn" onclick="changeCount(1)">+</button>
+      </div>
+      <div id="trialCountNote" style="display:none;font-size:11px;color:var(--warning);margin-top:10px">
+        ⚠️ Trial limited to 10 accounts
+      </div>
+    </div>
+
+    <button class="btn-start-auto" onclick="startAutomation()">
+      ⚡ Start Automation
+    </button>
+    <button class="btn-logout-setup" onclick="logout()">🚪 Logout</button>
+  </div>
+</div>
+
+<!-- ===================== AUTOMATION PAGE ===================== -->
+<div class="page" id="autoPage">
+  <div class="auto-topbar">
+    <div class="auto-status">
+      <span class="auto-status-label">STATUS</span>
+      <span class="auto-status-val" id="autoStatusVal">Initializing...</span>
+    </div>
+    <button class="btn-stop" onclick="stopAutomation()">⏹ STOP</button>
+  </div>
+  <div class="auto-progress-bar">
+    <div class="auto-progress-fill" id="autoProgressFill" style="width:0%"></div>
+  </div>
+
+  <!-- Fake Google Form Screen -->
+  <div class="auto-screen" id="autoScreen">
+    <div class="google-topbar">
+      <div class="g-logo">Google</div>
+      <div class="g-url" id="gUrl">accounts.google.com/signup</div>
+    </div>
+    <div class="g-progress-wrap">
+      <div class="g-steps" id="gSteps">
+        <div class="g-step active" id="gStep0"></div>
+        <div class="g-step" id="gStep1"></div>
+        <div class="g-step" id="gStep2"></div>
+        <div class="g-step" id="gStep3"></div>
+      </div>
+    </div>
+    <div class="google-form-body" id="googleFormBody">
+      <div class="g-form-title" id="gFormTitle">Create your Google Account</div>
+      <div class="g-form-sub" id="gFormSub">Enter your name to get started</div>
+      <div class="g-field" id="gField0">
+        <div class="g-field-label">First name</div>
+        <div class="g-field-input active-field" id="gInput0"><span class="g-cursor"></span></div>
+      </div>
+      <div class="g-field" id="gField1" style="display:none">
+        <div class="g-field-label">Last name</div>
+        <div class="g-field-input" id="gInput1"></div>
+      </div>
+      <div class="g-field" id="gFieldDob" style="display:none">
+        <div class="g-field-label">Date of birth</div>
+        <div class="g-field-input" id="gInputDob"></div>
+      </div>
+      <div class="g-field" id="gFieldEmail" style="display:none">
+        <div class="g-field-label">Gmail address</div>
+        <div class="g-field-input" id="gInputEmail"></div>
+      </div>
+      <div class="g-field" id="gFieldPass" style="display:none">
+        <div class="g-field-label">Password</div>
+        <div class="g-field-input" id="gInputPass"></div>
+      </div>
+    </div>
+
+    <!-- Checking Overlay -->
+    <div class="checking-overlay" id="checkingOverlay">
+      <div class="checking-spinner"></div>
+      <div class="checking-title">Verifying Information...</div>
+      <div class="checking-steps" id="checkingSteps">
+        <div class="check-step-item" id="cs0">
+          <div class="check-dot"></div> Checking username availability
+        </div>
+        <div class="check-step-item" id="cs1">
+          <div class="check-dot"></div> Validating personal info
+        </div>
+        <div class="check-step-item" id="cs2">
+          <div class="check-dot"></div> Setting up security
+        </div>
+        <div class="check-step-item" id="cs3">
+          <div class="check-dot"></div> Creating account
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- PAGE 4: SUCCESS -->
-<div class="page" id="page-success">
-  <div class="success-container">
-    <div class="success-icon">✓</div>
-    <div class="success-title">Success!</div>
-    <div class="success-sub" id="successSub">Accounts Generated</div>
-    <div class="scroll-area" id="accountsList"></div>
-    <br>
-    <button class="reveal-btn" id="revealBtn" onclick="revealPasswords()">
-      👁 Reveal All Passwords
-    </button>
-    <button class="copy-all-btn" id="copyAllBtn" onclick="copyAllData()">
-      📋 COPY ALL DATA
-    </button>
-    <br><br>
-    <button class="logout-btn" onclick="goToSetup()" style="margin-top:10px;">
-      🔄 Generate More
-    </button>
+<!-- ===================== SUCCESS PAGE ===================== -->
+<div class="page" id="successPage">
+  <div class="app-header">
+    <button class="back-btn" onclick="showPage('setupPage')">←</button>
+    <div class="logo-text">Results</div>
+    <span class="badge-ultimate">👑</span>
   </div>
-</div>
-
-<!-- PAGE 5: PRICING -->
-<div class="page" id="page-pricing">
-  <div class="pricing-container">
-    <div class="pricing-title">💎 Get Premium</div>
-    <div class="pricing-sub">Unlock Full Access</div>
-    <div id="pricingPlans"></div>
-    <div style="margin-top:20px; background:rgba(255,255,255,0.03); border-radius:16px; padding:20px; border:1px solid rgba(255,255,255,0.1);">
-      <div style="font-weight:700; margin-bottom:15px; color:#a78bfa;">💬 Contact & Support</div>
-      <a href="https://t.me/tarakislam1" target="_blank" style="display:flex; align-items:center; gap:10px; color:#60a5fa; text-decoration:none; font-size:14px;">
-        ✈️ Telegram: @tarakislam1
-      </a>
+  <div class="success-body">
+    <div class="success-header">
+      <div class="success-check">✓</div>
+      <div class="success-title" id="successTitle">Accounts Generated!</div>
+      <div class="success-count" id="successCount">10 Gmail accounts created</div>
     </div>
-    <button class="logout-btn" onclick="showPage('page-license')" style="margin-top:15px;">← Back</button>
+    <div id="accountCards"></div>
+  </div>
+  <div class="success-actions">
+    <button class="btn-reveal-all" id="btnRevealAll" onclick="revealAllPasswords()">👁 Reveal All Passwords</button>
+    <button class="btn-copy-all" id="btnCopyAll" onclick="copyAllData()">📋 COPY ALL DATA</button>
+    <button class="btn-gen-more" onclick="showPage('setupPage')">🔄 Generate More</button>
   </div>
 </div>
 
-<!-- PREMIUM POPUP -->
-<div class="premium-popup" id="premiumPopup">
-  <div class="premium-popup-box">
-    <div class="lock-big">🔒</div>
-    <div class="premium-popup-title">Premium Required!</div>
-    <div class="premium-popup-sub">Gmail ও Password দেখতে Premium Key প্রয়োজন।</div>
-    <button class="buy-btn" onclick="showPricing()">💎 Buy Premium Now</button>
-    <a href="https://t.me/tarakislam1" target="_blank" class="tg-contact-btn">✈️ Contact via Telegram</a>
-    <button class="close-popup-btn" onclick="closePremiumPopup()">✕ Close</button>
+<!-- ===================== PRICING PAGE ===================== -->
+<div class="page" id="pricingPage">
+  <div class="app-header">
+    <button class="back-btn" onclick="showPage('successPage')">←</button>
+    <div class="logo-text">Get Premium</div>
+    <span></span>
+  </div>
+  <div class="pricing-body">
+    <div class="pricing-header">
+      <h2>💎 Upgrade to Premium</h2>
+      <p>Unlock full access — real Gmail + password</p>
+    </div>
+    <div id="planCards"></div>
   </div>
 </div>
 
-<!-- PAYMENT MODAL -->
-<div class="payment-modal" id="paymentModal">
-  <div class="payment-box">
-    <div class="payment-title">💳 Payment Info</div>
-    <div id="selectedPlanInfo" style="text-align:center; color:#a78bfa; margin-bottom:15px; font-weight:700;"></div>
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="payment-modal-box">
+    <div class="payment-title">💳 Complete Payment</div>
+    <div class="payment-sub" id="payModalPlan">Plan: 30 Days — ৳3300</div>
     <div class="payment-method">
-      <div class="payment-method-name">📱 bKash</div>
-      <div class="payment-number">01313267554</div>
-      <button class="copy-number-btn" onclick="copyText('01313267554', true)">📋 Copy</button>
+      <div class="payment-logo bkash-logo">bK</div>
+      <div class="payment-info">
+        <div class="payment-name">bKash</div>
+        <div class="payment-num">01313267554</div>
+      </div>
+      <button class="btn-copy-pay" onclick="copyText('01313267554')">Copy</button>
     </div>
     <div class="payment-method">
-      <div class="payment-method-name">💚 Nagad</div>
-      <div class="payment-number">01313267551</div>
-      <button class="copy-number-btn" onclick="copyText('01313267551', true)">📋 Copy</button>
+      <div class="payment-logo nagad-logo">Ng</div>
+      <div class="payment-info">
+        <div class="payment-name">Nagad</div>
+        <div class="payment-num">01313267551</div>
+      </div>
+      <button class="btn-copy-pay" onclick="copyText('01313267551')">Copy</button>
     </div>
-    <div class="payment-note">⚠️ Payment এর পর Screenshot সহ Telegram এ যোগাযোগ করুন</div>
-    <a href="https://t.me/tarakislam1" target="_blank" style="display:block; text-align:center; color:#60a5fa; margin-bottom:15px; font-size:14px; text-decoration:none;">✈️ @tarakislam1</a>
-    <button class="close-payment-btn" onclick="closePaymentModal()">✕ Close</button>
+    <div class="payment-note">
+      📸 Send payment screenshot to Telegram after paying
+    </div>
+    <button class="btn-tg-pay" onclick="window.open('https://t.me/tarakislam1','_blank')">
+      ✈️ Send Screenshot → @tarakislam1
+    </button>
+    <button class="btn-close-pay" onclick="closeModal('paymentModal')">✕ Close</button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- Premium Required Popup -->
+<div class="modal-overlay" id="premiumPopup">
+  <div class="modal-box" style="border:2px solid var(--warning)">
+    <div class="popup-icon">👑</div>
+    <div class="modal-title">Premium Required</div>
+    <div class="modal-sub">Upgrade to Premium to access this feature and view real Gmail accounts</div>
+    <button class="btn-buy-premium" onclick="closeModal('premiumPopup');showPage('pricingPage')">
+      💎 Buy Premium Now
+    </button>
+    <button class="btn-tg-premium" onclick="window.open('https://t.me/tarakislam1','_blank')">
+      ✈️ Contact on Telegram
+    </button>
+    <button class="btn-close-popup" onclick="closeModal('premiumPopup')">✕ Close</button>
+  </div>
+</div>
 
-<!-- FIREBASE SDK -->
+<!-- ===================== FIREBASE + LOGIC ===================== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get, set, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ── Firebase Config ──────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",
   authDomain: "pro-tools-hub1-f4d55.firebaseapp.com",
@@ -974,444 +1060,542 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const db = getDatabase(app);
 
-// ── Device ID ────────────────────────────────────────────────
-function getDeviceId() {
-  let id = localStorage.getItem('pth_device_id');
-  if (!id) {
-    id = 'dev_' + Math.random().toString(36).substr(2,16) + Date.now();
-    localStorage.setItem('pth_device_id', id);
-  }
-  return id;
+// ===== GLOBALS =====
+let currentKey = null;
+let currentKeyData = null;
+let deviceId = localStorage.getItem('pth_device_id');
+if (!deviceId) {
+  deviceId = 'dev_' + Math.random().toString(36).substr(2,12) + Date.now().toString(36);
+  localStorage.setItem('pth_device_id', deviceId);
 }
 
-// ── Global State ─────────────────────────────────────────────
-window.currentKeyData   = null;
-window.generatedAccounts = [];
-window.passwordsRevealed = false;
-let automationInterval  = null;
-let totalAccounts       = 1;
-let currentAccount      = 0;
+let isTrial = false;
+let totalAccounts = 1;
+let generatedAccounts = [];
+let autoInterval = null;
+let autoStopped = false;
+let currentAccIdx = 0;
 
-// ── Init ─────────────────────────────────────────────────────
-window.addEventListener('load', async () => {
-  showLoading('Connecting to Server...');
-  await initFirebase();
-  loadNotice();
-  hideLoading();
+// ===== SHOW/HIDE LOADING =====
+function showLoading(){ document.getElementById('loadingOverlay').classList.remove('hidden'); }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); }
 
-  const savedKey = localStorage.getItem('pth_saved_key');
-  if (savedKey) {
-    showLoading('Verifying Session...');
-    const result = await validateKeyFromDB(savedKey);
-    hideLoading();
-    if (result.valid) {
-      window.currentKeyData = result.keyData;
-      updateSetupPage();
-      showPage('page-setup');
-      return;
-    } else {
-      localStorage.removeItem('pth_saved_key');
-    }
-  }
-  showPage('page-license');
-});
-
-// ── Firebase Init ────────────────────────────────────────────
-async function initFirebase() {
-  const plansSnap = await get(ref(db, 'plans'));
-  if (!plansSnap.exists()) {
-    await set(ref(db, 'plans'), [
-      { name:"7 Days",   days:7,  price:1200, discount:0, popular:false },
-      { name:"15 Days",  days:15, price:2200, discount:0, popular:false },
-      { name:"30 Days",  days:30, price:3300, discount:0, popular:true  },
-      { name:"Lifetime", days:-1, price:5500, discount:0, popular:false }
-    ]);
-  }
-  const noticeSnap = await get(ref(db, 'notice'));
-  if (!noticeSnap.exists()) {
-    await set(ref(db, 'notice'), { active: false, text: '' });
-  }
-}
-
-// ── Notice ───────────────────────────────────────────────────
-function loadNotice() {
-  onValue(ref(db, 'notice'), snap => {
-    const notice = snap.val();
-    const banner = document.getElementById('noticeBanner');
-    if (notice && notice.active && notice.text) {
-      document.getElementById('noticeText').textContent = notice.text;
-      banner.classList.add('active');
-    } else {
-      banner.classList.remove('active');
-    }
-  });
-}
-
-// ── Key Format ───────────────────────────────────────────────
-window.formatKey = function(input) {
-  let val = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  let f = '';
-  for (let i = 0; i < val.length && i < 12; i++) {
-    if (i === 4 || i === 8) f += '-';
-    f += val[i];
-  }
-  input.value = f;
+// ===== TOAST =====
+window.showToast = function(msg, dur=2500){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
 };
 
-// ── Key Validation ───────────────────────────────────────────
-async function validateKeyFromDB(keyInput) {
-  try {
-    const snap = await get(ref(db, `keys/${keyInput.replace(/-/g,'_')}`));
-    if (!snap.exists()) return { valid: false, reason: 'invalid' };
-
-    const key = snap.val();
-    if (!key.active) return { valid: false, reason: 'disabled' };
-
-    if (key.expiry) {
-      if (new Date() > new Date(key.expiry))
-        return { valid: false, reason: 'expired' };
-    }
-
-    const deviceId = getDeviceId();
-
-    if (key.type === 'trial') {
-      const usedBy = key.usedBy ? Object.values(key.usedBy) : [];
-      if (usedBy.includes(deviceId))
-        return { valid: false, reason: 'trial_used' };
-      // Register device
-      await update(ref(db, `keys/${keyInput.replace(/-/g,'_')}/usedBy`),
-        { [deviceId]: deviceId });
-    }
-
-    if (key.type === 'premium') {
-      const usedBy = key.usedBy ? Object.values(key.usedBy) : [];
-      if (usedBy.length > 0 && !usedBy.includes(deviceId))
-        return { valid: false, reason: 'key_in_use' };
-      await update(ref(db, `keys/${keyInput.replace(/-/g,'_')}/usedBy`),
-        { [deviceId]: deviceId });
-    }
-
-    // Log activity
-    await set(
-      ref(db, `activity/${keyInput.replace(/-/g,'_')}_${deviceId}`),
-      { key: keyInput, deviceId, loginAt: new Date().toISOString(), type: key.type }
-    );
-
-    return { valid: true, keyData: { ...key, key: keyInput } };
-  } catch(e) {
-    return { valid: false, reason: 'error' };
-  }
-}
-
-window.validateKey = async function() {
-  const input = document.getElementById('licenseInput').value.trim();
-  if (!input || input.length < 3) { showToast('❌ License Key দিন!','error'); return; }
-
-  const btn = document.getElementById('unlockBtn');
-  btn.disabled = true;
-  showLoading('Validating Key...');
-
-  const result = await validateKeyFromDB(input);
-  hideLoading();
-  btn.disabled = false;
-
-  if (!result.valid) {
-    const msgs = {
-      invalid:   '❌ Invalid Key!',
-      disabled:  '❌ Key Disabled করা হয়েছে!',
-      expired:   '❌ Key Expired হয়ে গেছে!',
-      trial_used:'❌ Trial Key এই Device এ ব্যবহার হয়েছে!',
-      key_in_use:'❌ Key অন্য Device এ ব্যবহার হচ্ছে!',
-      error:     '❌ Server Error! আবার চেষ্টা করো।'
-    };
-    showToast(msgs[result.reason] || '❌ Error!', 'error');
-    return;
-  }
-
-  window.currentKeyData = result.keyData;
-  localStorage.setItem('pth_saved_key', input);
-
-  const isTrial = result.keyData.type === 'trial';
-  document.getElementById('modalIcon').textContent    = isTrial ? '🔑' : '💎';
-  document.getElementById('modalTitle').textContent   = isTrial ? 'Trial Unlocked 🔑' : 'Premium Unlocked 💎';
-  document.getElementById('modalSubtitle').textContent = isTrial
-    ? 'Trial Access Activated. (Limited)'
-    : 'Full Access via Master Key.';
-  document.getElementById('premiumModal').classList.add('active');
-};
-
-// ── Navigation ───────────────────────────────────────────────
-window.showPage = function(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+// ===== PAGE NAV =====
+window.showPage = function(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 };
 
-window.goToSetup = function() {
-  document.getElementById('premiumModal').classList.remove('active');
-  updateSetupPage();
-  showPage('page-setup');
-  loadPricingPlans();
+window.closeModal = function(id){
+  document.getElementById(id).classList.remove('show');
 };
 
-function updateSetupPage() {
-  const kd    = window.currentKeyData;
-  const badge = document.getElementById('keyStatusBadge');
-  if (!kd) return;
-  if (kd.type === 'trial') {
-    badge.innerHTML = '<div class="trial-badge">🔑 Trial Mode - Limited Access</div>';
-    document.getElementById('accountCount').value    = 10;
-    document.getElementById('accountCount').disabled = true;
+// ===== NOTICE via onValue =====
+onValue(ref(db,'notice'), snap=>{
+  const data = snap.val();
+  const banner = document.getElementById('noticeBanner');
+  if(data && data.active && data.text){
+    banner.textContent = data.text;
+    banner.classList.add('show');
   } else {
-    const exp = kd.expiry
-      ? 'Expires: ' + new Date(kd.expiry).toLocaleDateString('en-BD')
-      : 'Lifetime Access ♾️';
-    badge.innerHTML = `<div class="expiry-badge">💎 Premium | ${exp}</div>`;
-    document.getElementById('accountCount').disabled = false;
-    document.getElementById('accountCount').max      = 9999;
+    banner.classList.remove('show');
   }
-}
+});
 
-window.logout = function() {
-  window.currentKeyData    = null;
-  window.generatedAccounts = [];
-  localStorage.removeItem('pth_saved_key');
-  document.getElementById('licenseInput').value = '';
-  showPage('page-license');
-  showToast('✅ Logged out!');
+// ===== KEY FORMAT =====
+window.formatKey = function(input){
+  let v = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  let parts = [];
+  for(let i=0;i<v.length&&i<12;i+=4) parts.push(v.substr(i,4));
+  input.value = parts.join('-');
 };
 
-// ── Automation ───────────────────────────────────────────────
-const firstNames = ['William','James','Oliver','Noah','Liam','Emma','Sophia','Ava','Isabella','Mia','Lucas','Ethan','Mason','Logan','Aiden'];
-const lastNames  = ['Jones','Smith','Johnson','Brown','Davis','Wilson','Moore','Taylor','Anderson','Thomas'];
-
-function rndName() {
-  return {
-    first: firstNames[Math.floor(Math.random()*firstNames.length)],
-    last:  lastNames [Math.floor(Math.random()*lastNames.length)]
-  };
-}
-function genEmail(f,l)   { return `${f.toLowerCase()}${l.toLowerCase()}${Math.floor(Math.random()*9000)+100}@gmail.com`; }
-function genPassword()   {
-  const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let p=''; for(let i=0;i<8;i++) p+=c[Math.floor(Math.random()*c.length)];
-  return p+'@'+Math.floor(Math.random()*900+100);
-}
-
-const steps = [
-  { title:'Create a Google Account', sub:'Enter your name',             field:'name'     },
-  { title:'Basic information',        sub:'Enter your birthday & gender', field:'birthday' },
-  { title:"How you'll sign in",       sub:'Create a Gmail address',       field:'email'    },
-  { title:'Create a strong password', sub:'Use 8 or more characters',     field:'password' }
-];
-
-window.startAutomation = function() {
-  const kd = window.currentKeyData;
-  if (!kd) return;
-  totalAccounts       = kd.type === 'trial' ? 10 : Math.min(parseInt(document.getElementById('accountCount').value)||1, 9999);
-  currentAccount      = 0;
-  window.generatedAccounts = [];
-  window.passwordsRevealed = false;
-  showPage('page-automation');
-  runNext();
-};
-
-function runNext() {
-  if (currentAccount >= totalAccounts) { setTimeout(showSuccessPage, 400); return; }
-  const name  = rndName();
-  const email = genEmail(name.first, name.last);
-  const pass  = genPassword();
-  let step    = 0;
-  document.getElementById('statusText').textContent = `Creating: ${currentAccount+1} / ${totalAccounts}`;
-
-  automationInterval = setInterval(() => {
-    if (step >= steps.length) {
-      clearInterval(automationInterval);
-      window.generatedAccounts.push({ email, password: pass });
-      currentAccount++;
-      setTimeout(runNext, 200);
-      return;
+// ===== VALIDATE KEY =====
+window.validateKey = async function(){
+  const raw = document.getElementById('keyInput').value.trim();
+  if(raw.length !== 14){ showToast('❌ Enter a valid key (XXXX-XXXX-XXXX)'); return; }
+  showLoading();
+  try {
+    const keyPath = raw.replace(/-/g,'_');
+    const snap = await get(ref(db,`keys/${keyPath}`));
+    if(!snap.exists()){ hideLoading(); showToast('❌ Invalid key'); return; }
+    const kd = snap.val();
+    if(!kd.active){ hideLoading(); showToast('❌ Key is disabled'); return; }
+    // Expiry check
+    if(kd.expiry){
+      if(new Date(kd.expiry) < new Date()){ hideLoading(); showToast('❌ Key expired'); return; }
     }
-    renderStep(steps[step], name, email, pass);
-    document.getElementById('statusText').textContent = `Creating: ${currentAccount+1} / ${totalAccounts}`;
-    step++;
-  }, 900);
-}
-
-function renderStep(s, name, email, pass) {
-  let html = `<div class="google-logo-text"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div>
-    <div class="auto-form-title">${s.title}</div><div class="auto-form-sub">${s.sub}</div>`;
-  if (s.field==='name') {
-    html += `<div class="auto-input-label">First name</div><input class="auto-input pulse" value="${name.first}" readonly>
-             <div class="auto-input-label">Last name</div><input class="auto-input" value="${name.last}" readonly>`;
-  } else if (s.field==='birthday') {
-    const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    html += `<div style="display:flex;gap:10px;margin-bottom:12px;">
-      <input class="auto-input pulse" value="${mo[Math.floor(Math.random()*12)]}" readonly style="flex:1;">
-      <input class="auto-input" value="${Math.floor(Math.random()*28)+1}" readonly style="flex:1;">
-      <input class="auto-input" value="${Math.floor(Math.random()*20)+1985}" readonly style="flex:1;">
-    </div>`;
-  } else if (s.field==='email') {
-    html += `<div class="auto-input-label">Gmail address</div>
-      <input class="auto-input pulse" value="${email.replace('@gmail.com','')}" readonly>
-      <div style="color:#5f6368;font-size:12px;margin-top:4px;">@gmail.com</div>`;
-  } else if (s.field==='password') {
-    html += `<div class="auto-input-label">Password</div>
-      <input class="auto-input pulse" type="password" value="${pass}" readonly>`;
-  }
-  document.getElementById('automationContent').innerHTML = html;
-}
-
-window.stopAutomation = function() {
-  clearInterval(automationInterval);
-  window.generatedAccounts.length ? showSuccessPage() : showPage('page-setup');
-};
-
-// ── Success ──────────────────────────────────────────────────
-function showSuccessPage() {
-  const isTrial = window.currentKeyData?.type === 'trial';
-  document.getElementById('successSub').textContent = `${window.generatedAccounts.length} Accounts Generated`;
-  const list = document.getElementById('accountsList');
-  list.innerHTML = '';
-
-  window.generatedAccounts.forEach((acc, idx) => {
-    const card = document.createElement('div');
-    card.className = 'account-card';
-    if (isTrial) {
-      card.innerHTML = `
-        <div class="account-email blur-content">xxxxxxxxxxxx@gmail.com</div>
-        <div class="account-pass-row">
-          <span class="account-pass blur-content">••••••••••••</span>
-        </div>
-        <button class="copy-email-btn" onclick="showPremiumPopup()">🔒 Unlock to See</button>
-        <div class="trial-lock-overlay" onclick="showPremiumPopup()">🔒</div>`;
+    // Device check
+    const usedBy = kd.usedBy || {};
+    if(kd.type === 'premium'){
+      const ids = Object.keys(usedBy);
+      if(ids.length > 0 && !usedBy[deviceId]){
+        hideLoading(); showToast('❌ Key already used on another device'); return;
+      }
     } else {
-      card.innerHTML = `
-        <div class="account-email">${acc.email}</div>
-        <div class="account-pass-row">
-          <span class="account-pass" id="pass_${idx}" data-pass="${acc.password}">••••••••••</span>
-          <button class="copy-pass-btn" onclick="copyText('${acc.password}')">📋</button>
-        </div>
-        <button class="copy-email-btn" onclick="copyText('${acc.email}')">📋 Copy Email</button>`;
+      // Trial: check if this device already used ANY trial
+      const trialUsedSnap = await get(ref(db,'trialUsed/'+deviceId));
+      if(trialUsedSnap.exists()){
+        hideLoading(); showToast('❌ Trial already used on this device'); return;
+      }
     }
-    list.appendChild(card);
-  });
+    // Register device
+    const updates = {};
+    updates[`keys/${keyPath}/usedBy/${deviceId}`] = deviceId;
+    if(kd.type === 'trial'){
+      updates[`trialUsed/${deviceId}`] = true;
+    }
+    updates[`activity/${keyPath}_${deviceId}`] = {
+      key: raw, deviceId, loginAt: new Date().toISOString(), type: kd.type
+    };
+    await update(ref(db), updates);
 
-  const revBtn  = document.getElementById('revealBtn');
-  const copyBtn = document.getElementById('copyAllBtn');
-  if (isTrial) {
-    revBtn.onclick  = showPremiumPopup;
-    copyBtn.onclick = showPremiumPopup;
-    revBtn.style.background  = 'linear-gradient(135deg,#6b7280,#4b5563)';
-    copyBtn.style.background = 'linear-gradient(135deg,#6b7280,#4b5563)';
-  } else {
-    revBtn.onclick  = revealPasswords;
-    copyBtn.onclick = copyAllData;
-    revBtn.style.background  = 'linear-gradient(135deg,#22c55e,#16a34a)';
-    copyBtn.style.background = 'linear-gradient(135deg,#2563eb,#4a4aff)';
+    currentKey = raw; currentKeyData = kd;
+    isTrial = kd.type === 'trial';
+    localStorage.setItem('pth_saved_key', raw);
+    hideLoading();
+
+    // Show modal
+    const icon = document.getElementById('unlockIcon');
+    const title = document.getElementById('unlockTitle');
+    const sub = document.getElementById('unlockSub');
+    const info = document.getElementById('keyInfoText');
+    if(isTrial){
+      icon.textContent='🔑'; title.textContent='Trial Unlocked 🔑';
+      sub.textContent='Limited access — upgrade for full features';
+      info.textContent='Trial Key • 10 accounts • Blurred output';
+      document.getElementById('keyInfoBadge').style.borderColor='rgba(255,214,0,0.4)';
+      document.getElementById('keyInfoBadge').style.background='rgba(255,214,0,0.08)';
+    } else {
+      icon.textContent='💎'; title.textContent='Premium Unlocked 💎';
+      sub.textContent='Full access granted!';
+      const plan = kd.plan || 'Lifetime';
+      const exp = kd.expiry ? new Date(kd.expiry).toLocaleDateString() : 'Never';
+      info.textContent=`Plan: ${plan} • Expires: ${exp}`;
+    }
+    document.getElementById('unlockModal').classList.add('show');
+  } catch(e){
+    hideLoading(); showToast('❌ Error: '+e.message);
   }
-  showPage('page-success');
+};
+
+window.startApp = function(){
+  closeModal('unlockModal');
+  // Trial: lock count
+  if(isTrial){
+    document.getElementById('countInput').value = 10;
+    document.getElementById('countInput').disabled = true;
+    document.getElementById('trialCountNote').style.display='block';
+  }
+  showPage('setupPage');
+};
+
+// ===== REGION SELECT =====
+window.selectRegion = function(el, region){
+  document.querySelectorAll('.region-card').forEach(c=>{
+    c.classList.remove('selected');
+    c.querySelector('.region-check').textContent='';
+  });
+  el.classList.add('selected');
+  el.querySelector('.region-check').textContent='✓';
+};
+
+// ===== COUNT =====
+window.changeCount = function(d){
+  if(isTrial) return;
+  const inp = document.getElementById('countInput');
+  let v = parseInt(inp.value)||1;
+  v = Math.max(1, Math.min(999, v+d));
+  inp.value = v;
+};
+window.clampCount = function(){
+  if(isTrial){ document.getElementById('countInput').value=10; return; }
+  const inp = document.getElementById('countInput');
+  let v = parseInt(inp.value)||1;
+  v = Math.max(1, Math.min(999, v));
+  inp.value = v;
+};
+
+// ===== LOGOUT =====
+window.logout = function(){
+  currentKey=null; currentKeyData=null;
+  localStorage.removeItem('pth_saved_key');
+  document.getElementById('keyInput').value='';
+  showPage('keyPage');
+};
+
+// ===== RANDOM DATA GENERATORS =====
+const firstNames=['Alex','Jordan','Morgan','Riley','Casey','Taylor','Jamie','Avery','Cameron','Drew','Blake','Sky','River','Quinn','Sage'];
+const lastNames=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White'];
+const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function randItem(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function randPass(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  let p='';
+  for(let i=0;i<12;i++) p+=chars[Math.floor(Math.random()*chars.length)];
+  return p;
+}
+function genAccount(){
+  const fn=randItem(firstNames), ln=randItem(lastNames);
+  const year=randInt(1985,2002), mon=randInt(1,12), day=randInt(1,28);
+  const num=randInt(10,999);
+  const email=`${fn.toLowerCase()}.${ln.toLowerCase()}${num}@gmail.com`;
+  const pass=randPass();
+  const dob=`${randItem(months).substr(0,3)} ${day}, ${year}`;
+  return {fn,ln,email,pass,dob,year};
 }
 
-window.revealPasswords = function() {
-  if (window.currentKeyData?.type==='trial') { showPremiumPopup(); return; }
-  window.passwordsRevealed = !window.passwordsRevealed;
-  window.generatedAccounts.forEach((acc,idx) => {
-    const el = document.getElementById(`pass_${idx}`);
-    if (el) el.textContent = window.passwordsRevealed ? acc.password : '••••••••••';
+// ===== AUTOMATION =====
+window.startAutomation = function(){
+  totalAccounts = isTrial ? 10 : (parseInt(document.getElementById('countInput').value)||1);
+  generatedAccounts = [];
+  autoStopped = false;
+  currentAccIdx = 0;
+  showPage('autoPage');
+  runNextAccount();
+};
+
+window.stopAutomation = function(){
+  autoStopped = true;
+  clearTimeout(autoInterval);
+  if(generatedAccounts.length > 0){
+    showSuccessPage();
+  } else {
+    showPage('setupPage');
+  }
+};
+
+function updateProgress(){
+  const pct = (currentAccIdx / totalAccounts) * 100;
+  document.getElementById('autoProgressFill').style.width = pct+'%';
+  document.getElementById('autoStatusVal').textContent =
+    `Creating: ${currentAccIdx} / ${totalAccounts}`;
+}
+
+async function runNextAccount(){
+  if(autoStopped) return;
+  if(currentAccIdx >= totalAccounts){
+    showSuccessPage(); return;
+  }
+  updateProgress();
+  const acc = genAccount();
+  await animateAccountCreation(acc);
+  if(!autoStopped){
+    generatedAccounts.push(acc);
+    currentAccIdx++;
+    // Short pause between accounts
+    if(currentAccIdx < totalAccounts){
+      await sleep(600);
+      runNextAccount();
+    } else {
+      updateProgress();
+      showSuccessPage();
+    }
+  }
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function typeInto(el, text, speed=55){
+  el.innerHTML = '<span class="g-cursor"></span>';
+  el.classList.add('active-field');
+  for(let i=0;i<text.length;i++){
+    if(autoStopped) return;
+    const cursor = el.querySelector('.g-cursor');
+    const before = text.substr(0,i+1);
+    el.innerHTML = before + '<span class="g-cursor"></span>';
+    await sleep(speed + randInt(-15,15));
+  }
+  el.classList.remove('active-field');
+  el.classList.add('filled');
+}
+
+async function animateAccountCreation(acc){
+  // Reset form
+  const fields = ['gField0','gField1','gFieldDob','gFieldEmail','gFieldPass'];
+  fields.forEach(f=>{ document.getElementById(f).style.display='none'; });
+  ['gInput0','gInput1','gInputDob','gInputEmail','gInputPass'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.className='g-field-input'; el.innerHTML='';
   });
-  document.getElementById('revealBtn').textContent =
-    window.passwordsRevealed ? '🙈 Hide Passwords' : '👁 Reveal All Passwords';
-};
+  for(let i=0;i<4;i++){
+    document.getElementById('gStep'+i).className='g-step'+(i===0?' active':'');
+  }
+  document.getElementById('checkingOverlay').classList.remove('show');
 
-window.copyAllData = function() {
-  if (window.currentKeyData?.type==='trial') { showPremiumPopup(); return; }
-  let text = '=== PRO TOOLS HUB ===\n\n';
-  window.generatedAccounts.forEach((a,i) => {
-    text += `Account ${i+1}:\nEmail: ${a.email}\nPassword: ${a.password}\n\n`;
-  });
-  doCopy(text);
-  showToast('✅ All Data Copied!');
-};
+  // Step 0: Name
+  document.getElementById('gFormTitle').textContent = 'Create your Google Account';
+  document.getElementById('gFormSub').textContent = 'Enter your name to get started';
+  document.getElementById('gField0').style.display='block';
+  document.getElementById('gField1').style.display='block';
+  if(autoStopped)return;
+  await typeInto(document.getElementById('gInput0'), acc.fn, 80);
+  if(autoStopped)return;
+  await sleep(300);
+  document.getElementById('gInput1').classList.add('active-field');
+  await typeInto(document.getElementById('gInput1'), acc.ln, 80);
+  await sleep(500);
 
-window.copyText = function(text, force=false) {
-  if (!force && window.currentKeyData?.type==='trial') { showPremiumPopup(); return; }
-  doCopy(text);
-  showToast('✅ Copied!');
-};
+  // Step 1: DOB
+  document.getElementById('gStep0').className='g-step done';
+  document.getElementById('gStep1').className='g-step active';
+  document.getElementById('gFormTitle').textContent = 'What\'s your birthday?';
+  document.getElementById('gFormSub').textContent = 'We use this to verify your age';
+  document.getElementById('gFieldDob').style.display='block';
+  if(autoStopped)return;
+  await typeInto(document.getElementById('gInputDob'), acc.dob, 70);
+  await sleep(500);
 
-function doCopy(text) {
-  navigator.clipboard.writeText(text).catch(() => {
-    const el = document.createElement('textarea');
-    el.value = text; document.body.appendChild(el);
-    el.select(); document.execCommand('copy');
-    document.body.removeChild(el);
+  // Step 2: Email
+  document.getElementById('gStep1').className='g-step done';
+  document.getElementById('gStep2').className='g-step active';
+  document.getElementById('gFormTitle').textContent = 'Choose your Gmail address';
+  document.getElementById('gFormSub').textContent = 'This will be your Google Account username';
+  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/username';
+  document.getElementById('gFieldEmail').style.display='block';
+  if(autoStopped)return;
+  await typeInto(document.getElementById('gInputEmail'), acc.email, 50);
+  await sleep(400);
+
+  // Step 3: Password
+  document.getElementById('gStep2').className='g-step done';
+  document.getElementById('gStep3').className='g-step active';
+  document.getElementById('gFormTitle').textContent = 'Create a strong password';
+  document.getElementById('gFormSub').textContent = 'Use 8+ characters with letters, numbers & symbols';
+  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/password';
+  document.getElementById('gFieldPass').style.display='block';
+  if(autoStopped)return;
+  await typeInto(document.getElementById('gInputPass'), acc.pass.replace(/./g,'•'), 60);
+  await sleep(400);
+
+  // Checking overlay
+  document.getElementById('gStep3').className='g-step done';
+  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/verify';
+  if(autoStopped)return;
+  await runCheckingAnimation();
+}
+
+async function runCheckingAnimation(){
+  const overlay = document.getElementById('checkingOverlay');
+  overlay.classList.add('show');
+  const steps = ['cs0','cs1','cs2','cs3'];
+  for(let i=0;i<steps.length;i++){
+    if(autoStopped) break;
+    document.getElementById(steps[i]).className='check-step-item active';
+    await sleep(600);
+    document.getElementById(steps[i]).className='check-step-item done';
+    document.getElementById(steps[i]).querySelector('.check-dot').style.background='#34A853';
+  }
+  await sleep(400);
+  overlay.classList.remove('show');
+  // Reset check dots
+  steps.forEach(s=>{
+    document.getElementById(s).className='check-step-item';
+    document.getElementById(s).querySelector('.check-dot').style.background='#dadce0';
   });
 }
 
-// ── Premium Popup ────────────────────────────────────────────
-window.showPremiumPopup  = () => document.getElementById('premiumPopup').classList.add('active');
-window.closePremiumPopup = () => document.getElementById('premiumPopup').classList.remove('active');
-window.showPricing = () => { closePremiumPopup(); showPage('page-pricing'); };
+// ===== SUCCESS PAGE =====
+function showSuccessPage(){
+  const container = document.getElementById('accountCards');
+  container.innerHTML='';
+  document.getElementById('successTitle').textContent=`${generatedAccounts.length} Accounts Generated! 🎉`;
+  document.getElementById('successCount').textContent=`${generatedAccounts.length} Gmail accounts ready`;
 
-// ── Pricing ──────────────────────────────────────────────────
-async function loadPricingPlans() {
-  const snap = await get(ref(db, 'plans'));
-  const plans = snap.exists() ? snap.val() : [];
-  const container = document.getElementById('pricingPlans');
-  if (!container) return;
-  container.innerHTML = '';
-  Object.values(plans).forEach(plan => {
-    const disc  = plan.discount > 0;
-    const final = disc ? Math.round(plan.price*(1-plan.discount/100)) : plan.price;
-    const card  = document.createElement('div');
-    card.className = `plan-card ${plan.popular?'popular':''}`;
-    card.innerHTML = `
-      ${plan.popular ? '<div class="popular-tag">⭐ POPULAR</div>' : ''}
-      <div class="plan-name">💎 ${plan.name}</div>
-      ${disc ? `<div class="plan-original">৳${plan.price.toLocaleString()}</div>
-                <div class="plan-price">৳${final.toLocaleString()}</div>
-                <div class="plan-discount">🏷️ ${plan.discount}% OFF</div>`
-             : `<div class="plan-price">৳${plan.price.toLocaleString()}</div>`}
+  generatedAccounts.forEach((acc,i)=>{
+    const card = document.createElement('div');
+    card.className='account-card';
+    card.id='card_'+i;
+
+    if(isTrial){
+      card.innerHTML=`
+        <div class="account-card-num">Account #${i+1}</div>
+        <div class="account-field-row">
+          <div class="account-field-label">Gmail Address</div>
+          <div class="account-field-val">
+            <span class="blur-text">${acc.email}</span>
+          </div>
+        </div>
+        <div class="account-field-row">
+          <div class="account-field-label">Password</div>
+          <div class="account-field-val">
+            <span class="blur-text">${acc.pass}</span>
+          </div>
+        </div>
+        <div class="lock-overlay" onclick="showPremiumPopup()">
+          <div class="lock-overlay-icon">🔒</div>
+          <div class="lock-overlay-text">Tap to Unlock — Premium Required</div>
+        </div>
+      `;
+    } else {
+      card.innerHTML=`
+        <div class="account-card-num">Account #${i+1}</div>
+        <div class="account-field-row">
+          <div class="account-field-label">Gmail Address</div>
+          <div class="account-field-val">
+            <span id="em_${i}">${acc.email}</span>
+            <button class="copy-btn-sm" onclick="copyText('${acc.email}')">Copy</button>
+          </div>
+        </div>
+        <div class="account-field-row">
+          <div class="account-field-label">Password</div>
+          <div class="account-field-val">
+            <span id="pw_${i}" class="blur-text">${acc.pass}</span>
+            <button class="reveal-toggle" id="rv_${i}" onclick="toggleReveal(${i},'${acc.pass}')">Show</button>
+            <button class="copy-btn-sm" id="cp_${i}" onclick="copyText('${acc.pass}')">Copy</button>
+          </div>
+        </div>
+      `;
+    }
+    container.appendChild(card);
+  });
+
+  if(isTrial){
+    document.getElementById('btnRevealAll').onclick=showPremiumPopup;
+    document.getElementById('btnCopyAll').onclick=showPremiumPopup;
+  }
+  showPage('successPage');
+}
+
+let allRevealed = false;
+window.toggleReveal = function(i, pass){
+  const el = document.getElementById('pw_'+i);
+  const btn = document.getElementById('rv_'+i);
+  if(el.classList.contains('blur-text')){
+    el.classList.remove('blur-text'); btn.textContent='Hide';
+  } else {
+    el.classList.add('blur-text'); btn.textContent='Show';
+  }
+};
+
+window.revealAllPasswords = function(){
+  if(isTrial){ showPremiumPopup(); return; }
+  generatedAccounts.forEach((_,i)=>{
+    const el=document.getElementById('pw_'+i);
+    const btn=document.getElementById('rv_'+i);
+    if(el){ el.classList.remove('blur-text'); if(btn)btn.textContent='Hide'; }
+  });
+  showToast('✅ All passwords revealed');
+};
+
+window.copyAllData = function(){
+  if(isTrial){ showPremiumPopup(); return; }
+  let text='PRO TOOLS HUB — Generated Accounts\n';
+  text+='================================\n';
+  generatedAccounts.forEach((acc,i)=>{
+    text+=`Account ${i+1}:\nEmail: ${acc.email}\nPassword: ${acc.pass}\n\n`;
+  });
+  navigator.clipboard.writeText(text).then(()=>showToast('✅ All data copied!'));
+};
+
+window.copyText = function(t){
+  navigator.clipboard.writeText(t).then(()=>showToast('✅ Copied!'));
+};
+
+window.showPremiumPopup = function(){
+  document.getElementById('premiumPopup').classList.add('show');
+};
+
+// ===== PRICING =====
+async function loadPricing(){
+  try {
+    const snap = await get(ref(db,'plans'));
+    let plans = snap.val();
+    if(!plans) plans = defaultPlans();
+    renderPlans(plans);
+  } catch(e){ renderPlans(defaultPlans()); }
+}
+
+function defaultPlans(){
+  return [
+    {name:'7 Days',days:7,price:1200,discount:0,popular:false},
+    {name:'15 Days',days:15,price:2200,discount:0,popular:false},
+    {name:'30 Days',days:30,price:3300,discount:0,popular:true},
+    {name:'Lifetime',days:0,price:5500,discount:0,popular:false}
+  ];
+}
+
+function renderPlans(plans){
+  const container=document.getElementById('planCards');
+  container.innerHTML='';
+  const arr=Array.isArray(plans)?plans:Object.values(plans);
+  arr.forEach((plan,i)=>{
+    const disc=parseInt(plan.discount)||0;
+    const origPrice=parseInt(plan.price)||0;
+    const finalPrice=disc>0?Math.round(origPrice*(1-disc/100)):origPrice;
+    const card=document.createElement('div');
+    card.className='plan-card'+(plan.popular?' popular':'');
+    const features=[
+      'Unlimited account generation',
+      'Real Gmail + Password visible',
+      'Copy all data instantly',
+      'Priority server access',
+      plan.days===0?'Never expires':`Valid for ${plan.days} days`
+    ];
+    card.innerHTML=`
+      ${plan.popular?'<div class="popular-tag">🔥 POPULAR</div>':''}
+      <div class="plan-name">${plan.name}</div>
+      <div class="plan-duration">${plan.days===0?'Lifetime access':`${plan.days} days access`}</div>
+      <div class="plan-price-wrap">
+        ${disc>0?`<div class="plan-original">৳${origPrice}</div>`:''}
+        <div class="plan-price">৳${finalPrice}<span>/plan</span>
+          ${disc>0?`<span class="discount-badge">${disc}% OFF</span>`:''}
+        </div>
+      </div>
       <ul class="plan-features">
-        <li>Unlimited Account Generation</li>
-        <li>Gmail + Password Access</li>
-        <li>Copy All Data</li>
-        <li>All Server Regions</li>
-        <li>${plan.days===-1?'Lifetime Access ♾️':plan.days+' Days Access'}</li>
+        ${features.map(f=>`<li>${f}</li>`).join('')}
       </ul>
-      <button class="buy-plan-btn" onclick="showPayment('${plan.name}',${final})">
-        Buy Now - ৳${final.toLocaleString()}
-      </button>`;
+      <button class="btn-buy" onclick="openPayment('${plan.name}',${finalPrice})">Buy Now →</button>
+    `;
     container.appendChild(card);
   });
 }
 
-window.showPayment = (name, price) => {
-  document.getElementById('selectedPlanInfo').textContent = `📦 ${name} - ৳${price.toLocaleString()}`;
-  document.getElementById('paymentModal').classList.add('active');
+window.openPayment = function(name, price){
+  document.getElementById('payModalPlan').textContent=`Plan: ${name} — ৳${price}`;
+  document.getElementById('paymentModal').classList.add('show');
 };
-window.closePaymentModal = () => document.getElementById('paymentModal').classList.remove('active');
 
-// ── Loading ──────────────────────────────────────────────────
-function showLoading(txt='Loading...') {
-  document.getElementById('loadingText').textContent = txt;
-  document.getElementById('loadingOverlay').classList.add('active');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('active');
+// ===== SESSION RESTORE =====
+async function restoreSession(){
+  showLoading();
+  const saved = localStorage.getItem('pth_saved_key');
+  if(!saved){ hideLoading(); return; }
+  try {
+    const keyPath = saved.replace(/-/g,'_');
+    const snap = await get(ref(db,`keys/${keyPath}`));
+    if(!snap.exists()){ hideLoading(); return; }
+    const kd=snap.val();
+    if(!kd.active){ hideLoading(); return; }
+    if(kd.expiry && new Date(kd.expiry)<new Date()){ hideLoading(); return; }
+    const usedBy=kd.usedBy||{};
+    if(!usedBy[deviceId]){ hideLoading(); return; }
+    currentKey=saved; currentKeyData=kd; isTrial=(kd.type==='trial');
+    if(isTrial){
+      document.getElementById('countInput').value=10;
+      document.getElementById('countInput').disabled=true;
+      document.getElementById('trialCountNote').style.display='block';
+    }
+    hideLoading();
+    showPage('setupPage');
+  } catch(e){ hideLoading(); }
 }
 
-// ── Toast ────────────────────────────────────────────────────
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = `toast ${type}`;
-  setTimeout(()=>t.classList.add('show'), 10);
-  setTimeout(()=>t.classList.remove('show'), 3000);
-}
-window.showToast = showToast;
+// ===== INIT =====
+loadPricing();
+restoreSession();
+
 </script>
 </body>
 </html>
