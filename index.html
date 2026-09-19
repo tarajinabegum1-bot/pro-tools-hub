@@ -2,985 +2,454 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PRO TOOLS HUB</title>
+
+<!-- Protection -->
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',function(e){
+  if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&e.keyCode===73)||(e.ctrlKey&&e.shiftKey&&e.keyCode===74)||(e.ctrlKey&&e.keyCode===85)||(e.ctrlKey&&e.keyCode===83)){e.preventDefault();return false;}
+});
+setInterval(function(){
+  var w=window.outerWidth-window.innerWidth>160;
+  var h=window.outerHeight-window.innerHeight>160;
+  if(w||h){document.body.innerHTML='<div style="background:#000;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column"><h1 style="color:red;font-size:48px">⛔</h1><p style="color:red;font-size:18px;font-family:sans-serif">Access Denied</p></div>';}
+},500);
+console.log=console.warn=console.error=function(){};
+</script>
+
 <style>
-:root {
-  --primary: #6c63ff;
-  --secondary: #f72585;
-  --dark: #0a0a1a;
-  --darker: #050510;
-  --card: #12122a;
-  --card2: #1a1a35;
-  --text: #e0e0ff;
-  --muted: #7878a0;
-  --success: #00e676;
-  --warning: #ffd600;
-  --border: #2a2a50;
-  --gradient: linear-gradient(135deg, #6c63ff, #f72585);
-  --gradient2: linear-gradient(135deg, #0a0a1a, #1a1a35);
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+:root{
+  --primary:#6c63ff;--secondary:#f72585;
+  --dark:#0a0a1a;--darker:#050510;
+  --card:#12122a;--card2:#1a1a35;
+  --text:#e0e0ff;--muted:#7878a0;
+  --success:#00e676;--warning:#ffd600;
+  --border:#2a2a50;
+  --g1:linear-gradient(135deg,#6c63ff,#f72585);
 }
+body{background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.page{display:none;min-height:100vh;flex-direction:column;}
+.page.active{display:flex;}
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+/* LOADING */
+#loadingOverlay{position:fixed;inset:0;background:rgba(5,5,16,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;}
+#loadingOverlay.hidden{display:none;}
+.spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes modalIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes gradMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-body {
-  background: var(--dark);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+/* NOTICE */
+#noticeBanner{background:linear-gradient(90deg,#f72585,#6c63ff);color:#fff;padding:10px 16px;font-size:13px;text-align:center;display:none;}
+#noticeBanner.show{display:block;}
 
-/* ===== PAGES ===== */
-.page { display: none; min-height: 100vh; }
-.page.active { display: flex; flex-direction: column; }
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--border);border-radius:30px;padding:12px 24px;font-size:14px;font-weight:600;z-index:8000;transition:transform 0.3s;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
 
-/* ===== LOADING OVERLAY ===== */
-#loadingOverlay {
-  position: fixed; inset: 0;
-  background: rgba(5,5,16,0.95);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 9999;
-  gap: 16px;
-}
-#loadingOverlay.hidden { display: none; }
+/* HEADER */
+.app-header{background:var(--card);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:var(--g1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-size:15px;font-weight:700;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.badge{background:var(--g1);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;}
 
-.spinner {
-  width: 50px; height: 50px;
-  border: 4px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border-radius:24px;padding:30px 22px;width:100%;max-width:360px;text-align:center;border:1px solid var(--border);animation:modalIn 0.3s ease;}
 
-/* ===== NOTICE BANNER ===== */
-#noticeBanner {
-  background: linear-gradient(90deg, #f72585, #6c63ff);
-  color: white; padding: 10px 16px;
-  font-size: 13px; text-align: center;
-  display: none; position: relative;
-}
-#noticeBanner.show { display: block; }
+/* ══════════════════════════════
+   KEY PAGE
+══════════════════════════════ */
+#keyPage{align-items:center;justify-content:center;padding:24px;background:var(--darker);position:relative;overflow:hidden;}
+.kbg1,.kbg2{position:absolute;border-radius:50%;opacity:0.06;}
+.kbg1{width:320px;height:320px;background:var(--primary);top:-120px;right:-100px;}
+.kbg2{width:220px;height:220px;background:var(--secondary);bottom:-60px;left:-60px;}
+.key-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px 22px;width:100%;max-width:380px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(108,99,255,0.18);}
+.key-icon-wrap{width:72px;height:72px;background:var(--g1);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 20px;box-shadow:0 10px 30px rgba(108,99,255,0.4);}
+.key-input{width:100%;background:var(--darker);border:2px solid var(--border);border-radius:14px;padding:16px;color:var(--text);font-size:20px;font-family:'Courier New',monospace;text-align:center;letter-spacing:4px;outline:none;transition:border-color 0.3s;margin:22px 0 14px;}
+.key-input:focus{border-color:var(--primary);}
+.key-input::placeholder{color:var(--muted);letter-spacing:2px;font-size:14px;}
+.btn-primary{width:100%;background:var(--g1);border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);transition:transform 0.15s;}
+.btn-primary:active{transform:scale(0.97);}
+.btn-tg{width:100%;margin-top:12px;background:transparent;border:2px solid #229ED9;border-radius:14px;padding:14px;color:#229ED9;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 
-/* ===== HEADER ===== */
-.app-header {
-  background: var(--card);
-  padding: 14px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
-}
-.app-logo {
-  display: flex; align-items: center; gap: 10px;
-}
-.logo-icon {
-  width: 36px; height: 36px;
-  background: var(--gradient);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.logo-text { font-size: 16px; font-weight: 700; }
-.logo-sub { font-size: 10px; color: var(--muted); }
-.badge-ultimate {
-  background: var(--gradient);
-  color: white; font-size: 10px;
-  padding: 3px 8px; border-radius: 20px;
-  font-weight: 700;
-}
+/* ══════════════════════════════
+   SETUP PAGE
+══════════════════════════════ */
+#setupPage{background:var(--darker);}
+.setup-body{flex:1;padding:20px;overflow-y:auto;}
+.sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;}
+.region-list{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;}
+.region-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;}
+.region-card.sel{border-color:var(--primary);background:rgba(108,99,255,0.1);}
+.region-flag{font-size:26px;}
+.region-name{font-size:14px;font-weight:600;}
+.region-type{font-size:11px;color:var(--muted);}
+.region-chk{width:22px;height:22px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;flex-shrink:0;}
+.region-card.sel .region-chk{background:var(--primary);border-color:var(--primary);color:#fff;}
+.count-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:24px;}
+.count-row{display:flex;align-items:center;gap:14px;margin-top:12px;}
+.cnt-btn{width:46px;height:46px;background:var(--card2);border:2px solid var(--border);border-radius:12px;color:var(--text);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.cnt-inp{flex:1;text-align:center;background:var(--darker);border:2px solid var(--border);border-radius:12px;padding:10px;color:var(--text);font-size:22px;font-weight:700;outline:none;}
+.btn-start-auto{width:100%;background:var(--g1);border:none;border-radius:16px;padding:18px;color:#fff;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;}
+.btn-logout{width:100%;background:transparent;border:2px solid var(--border);border-radius:16px;padding:14px;color:var(--muted);font-size:14px;cursor:pointer;}
 
-/* ===== KEY PAGE ===== */
-#keyPage {
-  align-items: center; justify-content: center;
-  padding: 20px; background: var(--darker);
-  position: relative; overflow: hidden;
-}
-.key-bg-circle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.05;
-}
-.key-bg-circle:nth-child(1) {
-  width: 300px; height: 300px;
-  background: var(--primary);
-  top: -100px; right: -100px;
-}
-.key-bg-circle:nth-child(2) {
-  width: 200px; height: 200px;
-  background: var(--secondary);
-  bottom: -50px; left: -50px;
-}
-.key-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 32px 24px;
-  width: 100%; max-width: 380px;
-  position: relative; z-index: 1;
-  box-shadow: 0 20px 60px rgba(108,99,255,0.15);
-}
-.key-icon {
-  width: 70px; height: 70px;
-  background: var(--gradient);
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin: 0 auto 20px;
-  box-shadow: 0 10px 30px rgba(108,99,255,0.4);
-}
-.key-title { text-align: center; margin-bottom: 6px; }
-.key-title h2 { font-size: 22px; font-weight: 800; }
-.key-title p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+/* ══════════════════════════════
+   AUTOMATION PAGE
+══════════════════════════════ */
+#autoPage{background:#000;flex-direction:column;}
+.auto-topbar{background:#0f0f1e;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a3a;position:sticky;top:0;z-index:200;}
+.auto-status-label{font-size:10px;color:#7878a0;text-transform:uppercase;letter-spacing:1px;}
+.auto-status-val{font-size:16px;font-weight:700;color:#00e676;}
+.btn-stop{background:#f72585;border:none;border-radius:10px;padding:10px 22px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+.auto-pbar{height:4px;background:#1a1a3a;}
+.auto-pfill{height:100%;background:var(--g1);width:0%;transition:width 0.5s;}
 
-.key-input-wrap {
-  position: relative; margin: 24px 0 16px;
-}
-.key-input {
-  width: 100%;
-  background: var(--darker);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 50px 16px 16px;
-  color: var(--text);
-  font-size: 18px;
-  font-family: 'Courier New', monospace;
-  text-align: center;
-  letter-spacing: 3px;
-  transition: border-color 0.3s;
-  outline: none;
-}
-.key-input:focus { border-color: var(--primary); }
-.key-input::placeholder { color: var(--muted); letter-spacing: 2px; font-size: 14px; }
-.key-input-icon {
-  position: absolute; right: 16px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted); font-size: 20px;
-}
+/* Google Screen */
+.g-screen{flex:1;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.g-browser-bar{background:#f8f9fa;padding:10px 12px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:8px;}
+.g-nav-btn{width:28px;height:28px;border-radius:50%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5f6368;}
+.g-url-bar{flex:1;background:#fff;border:1px solid #ddd;border-radius:20px;padding:7px 14px;font-size:12px;color:#202124;display:flex;align-items:center;gap:6px;overflow:hidden;}
+.g-logo-mini{font-size:20px;font-weight:900;background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-.btn-unlock {
-  width: 100%;
-  background: var(--gradient);
-  border: none; border-radius: 14px;
-  padding: 16px; color: white;
-  font-size: 16px; font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 8px 25px rgba(108,99,255,0.4);
-}
-.btn-unlock:active { transform: scale(0.97); }
+/* Step dots */
+.g-dots{background:#fff;padding:10px 20px 6px;display:flex;gap:8px;}
+.g-dot{flex:1;height:4px;border-radius:4px;background:#e0e0e0;transition:all 0.4s;}
+.g-dot.active{background:#1a73e8;}
+.g-dot.done{background:#34A853;}
 
-.btn-telegram {
-  width: 100%; margin-top: 12px;
-  background: transparent;
-  border: 2px solid #229ED9;
-  border-radius: 14px;
-  padding: 14px; color: #229ED9;
-  font-size: 14px; font-weight: 600;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: background 0.2s;
-}
-.btn-telegram:active { background: rgba(34,158,217,0.1); }
+/* Form body */
+.g-form-body{flex:1;padding:22px 20px 16px;background:#fff;overflow-y:auto;display:flex;flex-direction:column;}
+.g-title{font-size:23px;font-weight:700;color:#202124;margin-bottom:6px;}
+.g-sub{font-size:14px;color:#5f6368;margin-bottom:26px;}
 
-/* ===== MODAL ===== */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
-  z-index: 1000; align-items: center; justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.show { display: flex; }
-.modal-box {
-  background: var(--card);
-  border-radius: 24px;
-  padding: 32px 24px;
-  width: 100%; max-width: 360px;
-  text-align: center;
-  border: 1px solid var(--border);
-  animation: modalIn 0.3s ease;
-}
-@keyframes modalIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-.modal-icon { font-size: 60px; margin-bottom: 16px; }
-.modal-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-.modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-.btn-start {
-  width: 100%;
-  background: var(--gradient);
-  border: none; border-radius: 14px;
-  padding: 16px; color: white;
-  font-size: 16px; font-weight: 700;
-  cursor: pointer;
-}
+/* Fields */
+.g-field{margin-bottom:18px;animation:fadeUp 0.4s ease;}
+.g-label{font-size:12px;color:#5f6368;margin-bottom:6px;font-weight:500;}
+.g-input{border:2px solid #dadce0;border-radius:8px;padding:15px 14px;font-size:15px;color:#202124;font-family:'Courier New',monospace;min-height:52px;background:#fff;transition:border-color 0.3s,box-shadow 0.3s;word-break:break-all;line-height:1.4;}
+.g-input.act{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.15);}
+.g-input.done{border-color:#34A853;}
+.g-input.pass-field{letter-spacing:3px;font-size:18px;}
 
-/* ===== SETUP PAGE ===== */
-#setupPage { background: var(--darker); }
-.setup-body { flex: 1; padding: 20px; overflow-y: auto; }
-.section-title {
-  font-size: 12px; font-weight: 700;
-  color: var(--muted); text-transform: uppercase;
-  letter-spacing: 1px; margin-bottom: 12px;
-}
+.g-cursor{display:inline-block;width:2px;height:17px;background:#1a73e8;animation:blink 0.7s infinite;vertical-align:middle;margin-left:1px;}
 
-.region-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.region-card {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 14px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-  cursor: pointer; transition: all 0.2s;
-}
-.region-card.selected {
-  border-color: var(--primary);
-  background: rgba(108,99,255,0.1);
-}
-.region-flag { font-size: 24px; }
-.region-info { flex: 1; }
-.region-name { font-size: 14px; font-weight: 600; }
-.region-type { font-size: 11px; color: var(--muted); }
-.region-check {
-  width: 22px; height: 22px;
-  border: 2px solid var(--border);
-  border-radius: 50%; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 12px; transition: all 0.2s;
-}
-.region-card.selected .region-check {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-}
+/* Gender select */
+.g-gender-sel{border:2px solid #34A853;border-radius:8px;padding:14px;font-size:15px;color:#202124;min-height:52px;background:#fff;display:flex;align-items:center;gap:10px;}
 
-.count-wrap {
-  background: var(--card);
-  border-radius: 14px; padding: 16px;
-  margin-bottom: 24px;
-}
-.count-label { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-.count-control {
-  display: flex; align-items: center; gap: 16px;
-}
-.count-btn {
-  width: 44px; height: 44px;
-  background: var(--card2);
-  border: 2px solid var(--border);
-  border-radius: 12px; color: var(--text);
-  font-size: 22px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700;
-}
-.count-input {
-  flex: 1; text-align: center;
-  background: var(--darker);
-  border: 2px solid var(--border);
-  border-radius: 12px; padding: 10px;
-  color: var(--text); font-size: 20px;
-  font-weight: 700; outline: none;
-}
+/* Available note */
+.g-avail{font-size:11px;color:#34A853;margin-top:5px;display:none;}
 
-.btn-start-auto {
-  width: 100%;
-  background: var(--gradient);
-  border: none; border-radius: 16px;
-  padding: 18px; color: white;
-  font-size: 17px; font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 8px 25px rgba(108,99,255,0.4);
-  display: flex; align-items: center;
-  justify-content: center; gap: 10px;
-  margin-bottom: 12px;
-}
-.btn-logout-setup {
-  width: 100%;
-  background: transparent;
-  border: 2px solid var(--border);
-  border-radius: 16px; padding: 14px;
-  color: var(--muted); font-size: 14px;
-  cursor: pointer;
-}
+/* Next button fake */
+.g-next-btn{background:#1a73e8;border-radius:8px;padding:14px;color:#fff;font-size:15px;font-weight:600;text-align:center;margin-top:auto;padding-top:14px;opacity:0.35;transition:opacity 0.5s;border:none;width:100%;cursor:default;}
+.g-next-btn.on{opacity:1;}
 
-/* ===== AUTOMATION PAGE ===== */
-#autoPage { background: #000; flex-direction: column; }
+/* Checking Overlay */
+.checking-ov{position:absolute;inset:0;background:rgba(255,255,255,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.5s;}
+.checking-ov.show{opacity:1;pointer-events:all;}
+.g-spinner{width:58px;height:58px;border:5px solid #e8eaed;border-top:5px solid #4285F4;border-right:5px solid #EA4335;border-bottom:5px solid #FBBC05;border-left:5px solid #34A853;border-radius:50%;animation:spin 1s linear infinite;}
+.check-title{font-size:17px;font-weight:700;color:#202124;text-align:center;}
+.check-sub{font-size:13px;color:#5f6368;}
+.check-list{width:270px;background:#f8f9fa;border-radius:12px;padding:14px 16px;}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:13px;color:#9aa0a6;transition:color 0.3s;}
+.check-item:last-child{border-bottom:none;}
+.check-item.act{color:#1a73e8;font-weight:600;}
+.check-item.ok{color:#34A853;}
+.check-dot{width:20px;height:20px;border-radius:50%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.3s;}
+.check-item.act .check-dot{background:#1a73e8;}
+.check-item.ok .check-dot{background:#34A853;color:#fff;}
 
-.auto-topbar {
-  background: #1a1a2e;
-  padding: 12px 16px;
-  display: flex; align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #2a2a4a;
-}
-.auto-status {
-  display: flex; flex-direction: column;
-}
-.auto-status-label {
-  font-size: 10px; color: var(--muted); text-transform: uppercase;
-}
-.auto-status-val {
-  font-size: 15px; font-weight: 700;
-  color: var(--success);
-}
-.btn-stop {
-  background: var(--secondary);
-  border: none; border-radius: 10px;
-  padding: 8px 18px; color: white;
-  font-size: 13px; font-weight: 700;
-  cursor: pointer;
-}
+/* ══════════════════════════════
+   SUCCESS PAGE
+══════════════════════════════ */
+#successPage{background:var(--darker);}
+.success-body{flex:1;padding:20px;overflow-y:auto;}
+.success-hdr{text-align:center;padding:18px 0 24px;}
+.success-check{width:80px;height:80px;background:rgba(0,230,118,0.12);border:3px solid var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 14px;animation:popIn 0.5s ease;}
+.success-title{font-size:22px;font-weight:800;}
+.success-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+.acc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+.acc-num{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.acc-row{margin-bottom:10px;}
+.acc-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.acc-val{font-size:14px;font-weight:600;font-family:'Courier New',monospace;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.blur{filter:blur(6px);user-select:none;pointer-events:none;}
+.copy-sm{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:4px 10px;color:var(--text);font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.reveal-btn{background:transparent;border:none;color:var(--primary);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;}
+.lock-ov{position:absolute;inset:0;background:rgba(10,10,26,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border-radius:16px;}
+.success-actions{padding:14px 20px 28px;display:flex;flex-direction:column;gap:10px;}
+.btn-reveal-all{width:100%;background:rgba(108,99,255,0.12);border:2px solid var(--primary);border-radius:14px;padding:14px;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer;}
+.btn-copy-all{width:100%;background:var(--g1);border:none;border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.btn-gen-more{width:100%;background:transparent;border:2px solid var(--border);border-radius:14px;padding:14px;color:var(--text);font-size:14px;cursor:pointer;}
 
-/* The big fake Google form */
-.auto-screen {
-  flex: 1;
-  background: #ffffff;
-  display: flex; flex-direction: column;
-  overflow: hidden; position: relative;
-}
-
-.google-topbar {
-  background: #ffffff;
-  padding: 12px 16px 8px;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex; align-items: center; gap: 10px;
-}
-.g-logo {
-  font-size: 22px; font-weight: 800;
-  background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.g-url {
-  flex: 1;
-  background: #f1f3f4;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 11px; color: #555;
-  white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.google-form-body {
-  flex: 1; padding: 24px 20px;
-  overflow-y: auto;
-  background: #fff;
-}
-.g-form-title {
-  font-size: 22px; font-weight: 700;
-  color: #202124; margin-bottom: 6px;
-}
-.g-form-sub {
-  font-size: 13px; color: #5f6368;
-  margin-bottom: 24px;
-}
-
-.g-field {
-  margin-bottom: 20px; position: relative;
-}
-.g-field-label {
-  font-size: 12px; color: #5f6368;
-  margin-bottom: 6px; font-weight: 500;
-}
-.g-field-input {
-  width: 100%;
-  border: 2px solid #dadce0;
-  border-radius: 8px;
-  padding: 14px 16px;
-  font-size: 15px; color: #202124;
-  background: #fff;
-  outline: none;
-  transition: border-color 0.2s;
-  font-family: 'Courier New', monospace;
-  min-height: 50px;
-}
-.g-field-input.active-field {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
-}
-.g-field-input.filled {
-  border-color: #34A853;
-  color: #202124;
-}
-
-.g-cursor {
-  display: inline-block;
-  width: 2px; height: 18px;
-  background: #1a73e8;
-  animation: blink 0.7s infinite;
-  vertical-align: middle;
-  margin-left: 1px;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-.g-progress-wrap {
-  padding: 0 20px 16px;
-  background: #fff;
-}
-.g-steps {
-  display: flex; gap: 6px;
-}
-.g-step {
-  flex: 1; height: 4px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  transition: background 0.5s;
-}
-.g-step.done { background: #1a73e8; }
-.g-step.active { background: #4285F4; animation: pulse-step 1s infinite; }
-@keyframes pulse-step { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-/* Checking overlay on auto screen */
-.checking-overlay {
-  position: absolute; inset: 0;
-  background: rgba(255,255,255,0.97);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 16px; z-index: 50;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.4s;
-}
-.checking-overlay.show { opacity: 1; pointer-events: all; }
-.checking-spinner {
-  width: 56px; height: 56px;
-  border: 4px solid #e0e0e0;
-  border-top-color: #1a73e8;
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-.checking-title { font-size: 17px; font-weight: 700; color: #202124; }
-.checking-steps { width: 240px; }
-.check-step-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; font-size: 13px; color: #5f6368;
-  border-bottom: 1px solid #f0f0f0;
-  opacity: 0.4; transition: opacity 0.3s;
-}
-.check-step-item.active { opacity: 1; color: #1a73e8; font-weight: 600; }
-.check-step-item.done { opacity: 1; color: #34A853; }
-.check-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #dadce0; flex-shrink: 0;
-  transition: background 0.3s;
-}
-.check-step-item.active .check-dot { background: #1a73e8; }
-.check-step-item.done .check-dot { background: #34A853; }
-
-/* Progress bar bottom */
-.auto-progress-bar {
-  height: 4px;
-  background: var(--border);
-}
-.auto-progress-fill {
-  height: 100%;
-  background: var(--gradient);
-  transition: width 0.5s ease;
-}
-
-/* ===== SUCCESS PAGE ===== */
-#successPage { background: var(--darker); }
-.success-body { flex: 1; padding: 20px; overflow-y: auto; }
-
-.success-header {
-  text-align: center; padding: 20px 0;
-}
-.success-check {
-  width: 80px; height: 80px;
-  background: rgba(0,230,118,0.15);
-  border: 3px solid var(--success);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; margin: 0 auto 16px;
-  animation: popIn 0.5s ease;
-}
-@keyframes popIn {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
-}
-.success-title { font-size: 22px; font-weight: 800; }
-.success-count {
-  font-size: 14px; color: var(--muted); margin-top: 4px;
-}
-
-.account-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px; padding: 16px;
-  margin-bottom: 12px; position: relative;
-  overflow: hidden;
-}
-.account-card-num {
-  font-size: 10px; font-weight: 700;
-  color: var(--primary); text-transform: uppercase;
-  letter-spacing: 1px; margin-bottom: 10px;
-}
-.account-field-row {
-  margin-bottom: 10px;
-}
-.account-field-label {
-  font-size: 11px; color: var(--muted); margin-bottom: 4px;
-}
-.account-field-val {
-  font-size: 14px; font-weight: 600;
-  font-family: 'Courier New', monospace;
-  display: flex; align-items: center; gap: 8px;
-}
-.blur-text {
-  filter: blur(6px);
-  user-select: none;
-  pointer-events: none;
-}
-.copy-btn-sm {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px; padding: 4px 10px;
-  color: var(--text); font-size: 11px;
-  cursor: pointer; white-space: nowrap;
-  flex-shrink: 0;
-}
-.copy-btn-sm:disabled { opacity: 0.4; cursor: default; }
-
-.lock-overlay {
-  position: absolute; inset: 0;
-  background: rgba(10,10,26,0.85);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 8px; cursor: pointer;
-  border-radius: 16px;
-}
-.lock-overlay-icon { font-size: 28px; }
-.lock-overlay-text { font-size: 12px; color: var(--warning); font-weight: 600; }
-
-.reveal-toggle {
-  background: transparent;
-  border: none; color: var(--primary);
-  font-size: 12px; cursor: pointer;
-  padding: 0; text-decoration: underline;
-}
-
-.success-actions {
-  padding: 16px 20px 30px;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.btn-copy-all {
-  width: 100%;
-  background: var(--gradient);
-  border: none; border-radius: 14px;
-  padding: 16px; color: white;
-  font-size: 15px; font-weight: 700;
-  cursor: pointer;
-}
-.btn-reveal-all {
-  width: 100%;
-  background: rgba(108,99,255,0.15);
-  border: 2px solid var(--primary);
-  border-radius: 14px; padding: 14px;
-  color: var(--primary); font-size: 14px;
-  font-weight: 600; cursor: pointer;
-}
-.btn-gen-more {
-  width: 100%;
-  background: transparent;
-  border: 2px solid var(--border);
-  border-radius: 14px; padding: 14px;
-  color: var(--text); font-size: 14px;
-  cursor: pointer;
-}
-
-/* ===== PRICING PAGE ===== */
-#pricingPage { background: var(--darker); }
-.pricing-body { flex: 1; padding: 20px; overflow-y: auto; }
-.pricing-header { text-align: center; padding: 20px 0; }
-.pricing-header h2 { font-size: 24px; font-weight: 800; }
-.pricing-header p { color: var(--muted); font-size: 13px; margin-top: 6px; }
-
-.plan-card {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 20px; padding: 20px;
-  margin-bottom: 14px; position: relative;
-  overflow: hidden;
-}
-.plan-card.popular {
-  border-color: var(--primary);
-  background: rgba(108,99,255,0.08);
-}
-.popular-tag {
-  position: absolute; top: 0; right: 20px;
-  background: var(--gradient);
-  color: white; font-size: 10px; font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 0 0 10px 10px;
-}
-.plan-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-.plan-duration { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
-.plan-price-wrap { margin-bottom: 16px; }
-.plan-original { font-size: 14px; color: var(--muted); text-decoration: line-through; }
-.plan-price { font-size: 32px; font-weight: 900; color: var(--text); }
-.plan-price span { font-size: 16px; color: var(--muted); }
-.discount-badge {
-  display: inline-block;
-  background: var(--success);
-  color: #000; font-size: 10px;
-  font-weight: 800; padding: 2px 8px;
-  border-radius: 20px; margin-left: 8px;
-}
-.plan-features { list-style: none; margin-bottom: 18px; }
-.plan-features li {
-  font-size: 13px; color: var(--muted);
-  padding: 6px 0; display: flex; align-items: center; gap: 8px;
-  border-bottom: 1px solid var(--border);
-}
-.plan-features li:last-child { border-bottom: none; }
-.plan-features li::before { content: "✓"; color: var(--success); font-weight: 700; }
-.btn-buy {
-  width: 100%;
-  background: var(--gradient);
-  border: none; border-radius: 12px;
-  padding: 14px; color: white;
-  font-size: 15px; font-weight: 700;
-  cursor: pointer;
-}
+/* ══════════════════════════════
+   PRICING PAGE
+══════════════════════════════ */
+#pricingPage{background:var(--darker);}
+.pricing-body{flex:1;padding:20px;overflow-y:auto;}
+.pricing-hdr{text-align:center;padding:16px 0 24px;}
+.plan-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.plan-card.pop{border-color:var(--primary);background:rgba(108,99,255,0.07);}
+.pop-tag{position:absolute;top:0;right:18px;background:var(--g1);color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:0 0 10px 10px;}
+.plan-name{font-size:18px;font-weight:800;margin-bottom:4px;}
+.plan-dur{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.plan-price{font-size:32px;font-weight:900;}
+.plan-orig{font-size:14px;color:var(--muted);text-decoration:line-through;}
+.disc-badge{display:inline-block;background:var(--success);color:#000;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:8px;}
+.plan-feats{list-style:none;margin:14px 0;}
+.plan-feats li{font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.plan-feats li:last-child{border:none;}
+.plan-feats li::before{content:"✓";color:var(--success);font-weight:700;}
+.btn-buy{width:100%;background:var(--g1);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
 
 /* Payment Modal */
-.payment-modal-box {
-  background: var(--card);
-  border-radius: 24px; padding: 28px 20px;
-  width: 100%; max-width: 360px;
-  border: 1px solid var(--border);
-  animation: modalIn 0.3s ease;
-}
-.payment-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
-.payment-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-.payment-method {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 16px;
-  margin-bottom: 12px;
-  display: flex; align-items: center; gap: 12px;
-}
-.payment-logo {
-  width: 40px; height: 40px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900;
-}
-.bkash-logo { background: #E2136E; color: white; font-size: 12px; }
-.nagad-logo { background: #F05A28; color: white; font-size: 11px; }
-.payment-info { flex: 1; }
-.payment-name { font-size: 13px; font-weight: 700; }
-.payment-num { font-size: 16px; font-weight: 800; font-family: monospace; }
-.btn-copy-pay {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 12px;
-  color: var(--text); font-size: 12px; cursor: pointer;
-}
-.payment-note {
-  background: rgba(255,214,0,0.1);
-  border: 1px solid rgba(255,214,0,0.3);
-  border-radius: 12px; padding: 12px;
-  font-size: 12px; color: var(--warning);
-  margin-bottom: 16px; text-align: center;
-}
-.btn-tg-pay {
-  width: 100%; background: #229ED9;
-  border: none; border-radius: 12px;
-  padding: 14px; color: white;
-  font-size: 14px; font-weight: 700;
-  cursor: pointer; margin-bottom: 10px;
-}
-.btn-close-pay {
-  width: 100%; background: transparent;
-  border: 2px solid var(--border);
-  border-radius: 12px; padding: 12px;
-  color: var(--muted); font-size: 14px;
-  cursor: pointer;
-}
+.pay-box{background:var(--card);border-radius:24px;padding:26px 20px;width:100%;max-width:360px;border:1px solid var(--border);animation:modalIn 0.3s;}
+.pay-method{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.pay-logo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;}
+.pay-num{font-size:17px;font-weight:800;font-family:monospace;}
+.pay-copy{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:12px;cursor:pointer;}
+.pay-note{background:rgba(255,214,0,0.08);border:1px solid rgba(255,214,0,0.25);border-radius:12px;padding:12px;font-size:12px;color:var(--warning);text-align:center;margin-bottom:14px;}
 
-/* ===== PREMIUM REQUIRED POPUP ===== */
-#premiumPopup .modal-box {
-  border: 2px solid var(--warning);
-}
-.popup-icon { font-size: 50px; margin-bottom: 12px; }
-.btn-buy-premium {
-  width: 100%; background: var(--gradient);
-  border: none; border-radius: 14px;
-  padding: 14px; color: white;
-  font-size: 15px; font-weight: 700;
-  cursor: pointer; margin-bottom: 10px;
-}
-.btn-tg-premium {
-  width: 100%; background: transparent;
-  border: 2px solid #229ED9;
-  border-radius: 14px; padding: 12px;
-  color: #229ED9; font-size: 13px;
-  cursor: pointer; margin-bottom: 10px;
-  display: flex; align-items: center;
-  justify-content: center; gap: 6px;
-}
-.btn-close-popup {
-  width: 100%; background: transparent;
-  border: none; color: var(--muted);
-  font-size: 13px; padding: 8px;
-  cursor: pointer;
-}
-
-/* ===== TOAST ===== */
-#toast {
-  position: fixed; bottom: 30px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 30px; padding: 12px 24px;
-  font-size: 14px; font-weight: 600;
-  z-index: 5000; transition: transform 0.3s;
-  white-space: nowrap;
-}
-#toast.show { transform: translateX(-50%) translateY(0); }
-
-/* back btn */
-.back-btn {
-  background: transparent; border: none;
-  color: var(--text); font-size: 22px;
-  cursor: pointer; padding: 4px;
-}
-
-/* Key plan info badge */
-.key-info-badge {
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(108,99,255,0.1);
-  border: 1px solid rgba(108,99,255,0.3);
-  border-radius: 10px; padding: 10px 14px;
-  margin-bottom: 20px; font-size: 12px;
-}
-.key-info-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* Premium popup */
+#premiumPopup .modal-box{border:2px solid var(--warning);}
+.btn-buy-prem{width:100%;background:var(--g1);border:none;border-radius:14px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.btn-tg-prem{width:100%;background:transparent;border:2px solid #229ED9;border-radius:14px;padding:12px;color:#229ED9;font-size:13px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-close-pop{width:100%;background:transparent;border:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer;}
+.back-btn{background:transparent;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:2px 6px;}
 </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
+<!-- Loading -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <p style="color:var(--muted);font-size:14px;">Connecting...</p>
+  <p style="color:var(--muted);font-size:14px">Connecting...</p>
 </div>
 
-<!-- Notice Banner -->
+<!-- Notice -->
 <div id="noticeBanner"></div>
 
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- ===================== KEY PAGE ===================== -->
+<!-- ══════════ KEY PAGE ══════════ -->
 <div class="page active" id="keyPage">
-  <div class="key-bg-circle"></div>
-  <div class="key-bg-circle"></div>
+  <div class="kbg1"></div><div class="kbg2"></div>
   <div class="key-card">
-    <div class="key-icon">🛡️</div>
-    <div class="key-title">
-      <h2>PRO TOOLS HUB</h2>
-      <p>Enter your license key to continue</p>
+    <div class="key-icon-wrap">🛡️</div>
+    <div style="text-align:center">
+      <h2 style="font-size:22px;font-weight:800">PRO TOOLS HUB</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:4px">Enter your license key</p>
+      <span class="badge" style="display:inline-block;margin-top:8px">👑 ULTIMATE 2026</span>
     </div>
-    <div style="text-align:center;margin-top:8px">
-      <span class="badge-ultimate">👑 ULTIMATE 2026</span>
-    </div>
-    <div class="key-input-wrap" style="margin-top:28px">
-      <input class="key-input" id="keyInput" maxlength="14"
-        placeholder="XXXX-XXXX-XXXX" oninput="formatKey(this)">
-      <span class="key-input-icon">🔑</span>
-    </div>
-    <button class="btn-unlock" onclick="validateKey()">🔓 Unlock Access</button>
-    <button class="btn-telegram" onclick="window.open('https://t.me/tarakislam1','_blank')">
-      ✈️ Get Key via Telegram
-    </button>
+    <input class="key-input" id="keyInput" maxlength="14" placeholder="XXXX-XXXX-XXXX" oninput="fmtKey(this)">
+    <button class="btn-primary" onclick="validateKey()">🔓 Unlock Access</button>
+    <button class="btn-tg" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Get Key via Telegram</button>
   </div>
 </div>
 
 <!-- Unlock Modal -->
 <div class="modal-overlay" id="unlockModal">
   <div class="modal-box">
-    <div class="modal-icon" id="unlockIcon">💎</div>
-    <div class="modal-title" id="unlockTitle">Premium Unlocked!</div>
-    <div class="modal-sub" id="unlockSub">Full access granted</div>
-    <div class="key-info-badge" id="keyInfoBadge">
-      <div class="key-info-dot" style="background:var(--success)"></div>
-      <span id="keyInfoText">License active</span>
-    </div>
-    <button class="btn-start" onclick="startApp()">🚀 Let's Start</button>
+    <div style="font-size:56px;margin-bottom:14px" id="uIcon">💎</div>
+    <div style="font-size:21px;font-weight:800;margin-bottom:6px" id="uTitle">Premium Unlocked!</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:18px" id="uSub">Full access granted</div>
+    <div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.25);border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:20px" id="uInfo">License active</div>
+    <button class="btn-primary" onclick="startApp()">🚀 Let's Start</button>
   </div>
 </div>
 
-<!-- ===================== SETUP PAGE ===================== -->
+<!-- ══════════ SETUP PAGE ══════════ -->
 <div class="page" id="setupPage">
   <div class="app-header">
-    <div class="app-logo">
+    <div class="logo-wrap">
       <div class="logo-icon">⚡</div>
-      <div>
-        <div class="logo-text">Gmail Creator AI</div>
-        <div class="logo-sub">PRO TOOLS HUB</div>
-      </div>
+      <div><div class="logo-text">Gmail Creator AI</div><div class="logo-sub">PRO TOOLS HUB</div></div>
     </div>
-    <span class="badge-ultimate">👑 ULTIMATE</span>
+    <span class="badge">👑 ULTIMATE</span>
   </div>
   <div class="setup-body">
-    <div class="section-title">🌐 Select Server Region</div>
+    <div class="sec-title">🌐 Select Server Region</div>
     <div class="region-list" id="regionList">
-      <div class="region-card selected" onclick="selectRegion(this,'us')" data-region="us">
+      <div class="region-card sel" onclick="selRegion(this)">
         <div class="region-flag">🇺🇸</div>
-        <div class="region-info">
-          <div class="region-name">United States</div>
-          <div class="region-type">⚡ Premium Server</div>
-        </div>
-        <div class="region-check">✓</div>
+        <div style="flex:1"><div class="region-name">United States</div><div class="region-type">⚡ Premium Server</div></div>
+        <div class="region-chk">✓</div>
       </div>
-      <div class="region-card" onclick="selectRegion(this,'bd')" data-region="bd">
+      <div class="region-card" onclick="selRegion(this)">
         <div class="region-flag">🇧🇩</div>
-        <div class="region-info">
-          <div class="region-name">Bangladesh</div>
-          <div class="region-type">🔹 Standard Server</div>
-        </div>
-        <div class="region-check"></div>
+        <div style="flex:1"><div class="region-name">Bangladesh</div><div class="region-type">🔹 Standard Server</div></div>
+        <div class="region-chk"></div>
       </div>
-      <div class="region-card" onclick="selectRegion(this,'in')" data-region="in">
+      <div class="region-card" onclick="selRegion(this)">
         <div class="region-flag">🇮🇳</div>
-        <div class="region-info">
-          <div class="region-name">India</div>
-          <div class="region-type">🔹 Standard Server</div>
-        </div>
-        <div class="region-check"></div>
+        <div style="flex:1"><div class="region-name">India</div><div class="region-type">🔹 Standard Server</div></div>
+        <div class="region-chk"></div>
       </div>
-      <div class="region-card" onclick="selectRegion(this,'uk')" data-region="uk">
+      <div class="region-card" onclick="selRegion(this)">
         <div class="region-flag">🇬🇧</div>
-        <div class="region-info">
-          <div class="region-name">United Kingdom</div>
-          <div class="region-type">⚡ Premium Server</div>
-        </div>
-        <div class="region-check"></div>
+        <div style="flex:1"><div class="region-name">United Kingdom</div><div class="region-type">⚡ Premium Server</div></div>
+        <div class="region-chk"></div>
       </div>
-      <div class="region-card" onclick="selectRegion(this,'ca')" data-region="ca">
+      <div class="region-card" onclick="selRegion(this)">
         <div class="region-flag">🇨🇦</div>
-        <div class="region-info">
-          <div class="region-name">Canada</div>
-          <div class="region-type">⚡ Premium Server</div>
-        </div>
-        <div class="region-check"></div>
+        <div style="flex:1"><div class="region-name">Canada</div><div class="region-type">⚡ Premium Server</div></div>
+        <div class="region-chk"></div>
       </div>
     </div>
 
-    <div class="section-title">📊 Number of Accounts</div>
-    <div class="count-wrap">
-      <div class="count-label">How many Gmail accounts?</div>
-      <div class="count-control">
-        <button class="count-btn" onclick="changeCount(-1)">−</button>
-        <input class="count-input" id="countInput" value="1" type="number" min="1" max="999" oninput="clampCount()">
-        <button class="count-btn" onclick="changeCount(1)">+</button>
+    <div class="sec-title">📊 Number of Accounts</div>
+    <div class="count-box">
+      <div style="font-size:14px;font-weight:600">How many Gmail accounts?</div>
+      <div class="count-row">
+        <button class="cnt-btn" onclick="chgCount(-1)">−</button>
+        <input class="cnt-inp" id="cntInp" value="1" type="number" min="1" max="999" oninput="clampCnt()">
+        <button class="cnt-btn" onclick="chgCount(1)">+</button>
       </div>
-      <div id="trialCountNote" style="display:none;font-size:11px;color:var(--warning);margin-top:10px">
-        ⚠️ Trial limited to 10 accounts
-      </div>
+      <div id="trialNote" style="display:none;font-size:11px;color:var(--warning);margin-top:10px">⚠️ Trial limited to 10 accounts</div>
     </div>
 
-    <button class="btn-start-auto" onclick="startAutomation()">
-      ⚡ Start Automation
-    </button>
-    <button class="btn-logout-setup" onclick="logout()">🚪 Logout</button>
+    <button class="btn-start-auto" onclick="startAuto()">⚡ Start Automation</button>
+    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
   </div>
 </div>
 
-<!-- ===================== AUTOMATION PAGE ===================== -->
+<!-- ══════════ AUTOMATION PAGE ══════════ -->
 <div class="page" id="autoPage">
-  <div class="auto-topbar">
-    <div class="auto-status">
-      <span class="auto-status-label">STATUS</span>
-      <span class="auto-status-val" id="autoStatusVal">Initializing...</span>
-    </div>
-    <button class="btn-stop" onclick="stopAutomation()">⏹ STOP</button>
-  </div>
-  <div class="auto-progress-bar">
-    <div class="auto-progress-fill" id="autoProgressFill" style="width:0%"></div>
-  </div>
 
-  <!-- Fake Google Form Screen -->
-  <div class="auto-screen" id="autoScreen">
-    <div class="google-topbar">
-      <div class="g-logo">Google</div>
-      <div class="g-url" id="gUrl">accounts.google.com/signup</div>
+  <!-- Top bar -->
+  <div class="auto-topbar">
+    <div>
+      <div class="auto-status-label">STATUS</div>
+      <div class="auto-status-val" id="autoStat">Initializing...</div>
     </div>
-    <div class="g-progress-wrap">
-      <div class="g-steps" id="gSteps">
-        <div class="g-step active" id="gStep0"></div>
-        <div class="g-step" id="gStep1"></div>
-        <div class="g-step" id="gStep2"></div>
-        <div class="g-step" id="gStep3"></div>
+    <button class="btn-stop" onclick="stopAuto()">⏹ STOP</button>
+  </div>
+  <div class="auto-pbar"><div class="auto-pfill" id="autoPfill"></div></div>
+
+  <!-- Google Screen -->
+  <div class="g-screen" id="gScreen">
+
+    <!-- Browser bar -->
+    <div class="g-browser-bar">
+      <div style="display:flex;gap:4px">
+        <div class="g-nav-btn">←</div>
+        <div class="g-nav-btn" style="color:#bbb">→</div>
       </div>
+      <div class="g-url-bar">
+        <span style="color:#34A853;font-size:13px">🔒</span>
+        <span id="gUrl" style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;color:#555">accounts.google.com/signup</span>
+      </div>
+      <div class="g-logo-mini">G</div>
     </div>
-    <div class="google-form-body" id="googleFormBody">
-      <div class="g-form-title" id="gFormTitle">Create your Google Account</div>
-      <div class="g-form-sub" id="gFormSub">Enter your name to get started</div>
-      <div class="g-field" id="gField0">
-        <div class="g-field-label">First name</div>
-        <div class="g-field-input active-field" id="gInput0"><span class="g-cursor"></span></div>
+
+    <!-- Step dots -->
+    <div class="g-dots">
+      <div class="g-dot active" id="gd0"></div>
+      <div class="g-dot" id="gd1"></div>
+      <div class="g-dot" id="gd2"></div>
+      <div class="g-dot" id="gd3"></div>
+    </div>
+
+    <!-- Form -->
+    <div class="g-form-body" id="gForm">
+      <div class="g-title" id="gTitle">Create your Google Account</div>
+      <div class="g-sub" id="gSub">Enter your name to get started</div>
+
+      <!-- First name -->
+      <div class="g-field" id="gf_fn">
+        <div class="g-label">First name</div>
+        <div class="g-input act" id="gi_fn"></div>
       </div>
-      <div class="g-field" id="gField1" style="display:none">
-        <div class="g-field-label">Last name</div>
-        <div class="g-field-input" id="gInput1"></div>
+      <!-- Last name -->
+      <div class="g-field" id="gf_ln" style="display:none">
+        <div class="g-label">Last name</div>
+        <div class="g-input" id="gi_ln"></div>
       </div>
-      <div class="g-field" id="gFieldDob" style="display:none">
-        <div class="g-field-label">Date of birth</div>
-        <div class="g-field-input" id="gInputDob"></div>
+      <!-- DOB -->
+      <div class="g-field" id="gf_dob" style="display:none">
+        <div class="g-label">Date of birth</div>
+        <div class="g-input" id="gi_dob"></div>
       </div>
-      <div class="g-field" id="gFieldEmail" style="display:none">
-        <div class="g-field-label">Gmail address</div>
-        <div class="g-field-input" id="gInputEmail"></div>
+      <!-- Gender -->
+      <div class="g-field" id="gf_gen" style="display:none">
+        <div class="g-label">Gender</div>
+        <div class="g-gender-sel">
+          <span style="color:#34A853;font-size:16px">✓</span>
+          <span id="gi_gen_val" style="font-size:15px;color:#202124"></span>
+        </div>
       </div>
-      <div class="g-field" id="gFieldPass" style="display:none">
-        <div class="g-field-label">Password</div>
-        <div class="g-field-input" id="gInputPass"></div>
+      <!-- Email -->
+      <div class="g-field" id="gf_em" style="display:none">
+        <div class="g-label">Gmail address</div>
+        <div class="g-input" id="gi_em"></div>
+        <div class="g-avail" id="emAvail">✓ Username available</div>
       </div>
+      <!-- Password -->
+      <div class="g-field" id="gf_pw" style="display:none">
+        <div class="g-label">Password</div>
+        <div class="g-input pass-field" id="gi_pw"></div>
+        <div style="font-size:11px;color:#9aa0a6;margin-top:5px">Use 8+ characters with letters, numbers & symbols</div>
+      </div>
+      <!-- Confirm pass -->
+      <div class="g-field" id="gf_cp" style="display:none">
+        <div class="g-label">Confirm password</div>
+        <div class="g-input pass-field" id="gi_cp"></div>
+      </div>
+
+      <div style="flex:1"></div>
+      <button class="g-next-btn" id="gNextBtn">Next</button>
     </div>
 
     <!-- Checking Overlay -->
-    <div class="checking-overlay" id="checkingOverlay">
-      <div class="checking-spinner"></div>
-      <div class="checking-title">Verifying Information...</div>
-      <div class="checking-steps" id="checkingSteps">
-        <div class="check-step-item" id="cs0">
-          <div class="check-dot"></div> Checking username availability
-        </div>
-        <div class="check-step-item" id="cs1">
-          <div class="check-dot"></div> Validating personal info
-        </div>
-        <div class="check-step-item" id="cs2">
-          <div class="check-dot"></div> Setting up security
-        </div>
-        <div class="check-step-item" id="cs3">
-          <div class="check-dot"></div> Creating account
-        </div>
+    <div class="checking-ov" id="checkOv">
+      <div class="g-spinner"></div>
+      <div>
+        <div class="check-title" id="checkTitle">Verifying your information</div>
+        <div class="check-sub" id="checkSub" style="text-align:center;margin-top:4px">Please wait...</div>
+      </div>
+      <div class="check-list">
+        <div class="check-item" id="ci0"><div class="check-dot" id="cd0"></div>Checking username availability</div>
+        <div class="check-item" id="ci1"><div class="check-dot" id="cd1"></div>Validating personal info</div>
+        <div class="check-item" id="ci2"><div class="check-dot" id="cd2"></div>Setting up account security</div>
+        <div class="check-item" id="ci3"><div class="check-dot" id="cd3"></div>Creating your Google Account</div>
       </div>
     </div>
+
   </div>
 </div>
 
-<!-- ===================== SUCCESS PAGE ===================== -->
+<!-- ══════════ SUCCESS PAGE ══════════ -->
 <div class="page" id="successPage">
   <div class="app-header">
     <button class="back-btn" onclick="showPage('setupPage')">←</button>
-    <div class="logo-text">Results</div>
-    <span class="badge-ultimate">👑</span>
+    <div class="logo-text">Generated Accounts</div>
+    <span class="badge">👑</span>
   </div>
   <div class="success-body">
-    <div class="success-header">
+    <div class="success-hdr">
       <div class="success-check">✓</div>
-      <div class="success-title" id="successTitle">Accounts Generated!</div>
-      <div class="success-count" id="successCount">10 Gmail accounts created</div>
+      <div class="success-title" id="succTitle">Accounts Ready!</div>
+      <div class="success-sub" id="succSub">Gmail accounts generated</div>
     </div>
-    <div id="accountCards"></div>
+    <div id="accCards"></div>
   </div>
   <div class="success-actions">
-    <button class="btn-reveal-all" id="btnRevealAll" onclick="revealAllPasswords()">👁 Reveal All Passwords</button>
-    <button class="btn-copy-all" id="btnCopyAll" onclick="copyAllData()">📋 COPY ALL DATA</button>
+    <button class="btn-reveal-all" id="btnRevAll" onclick="revealAll()">👁 Reveal All Passwords</button>
+    <button class="btn-copy-all" id="btnCopyAll" onclick="copyAll()">📋 COPY ALL DATA</button>
     <button class="btn-gen-more" onclick="showPage('setupPage')">🔄 Generate More</button>
   </div>
 </div>
 
-<!-- ===================== PRICING PAGE ===================== -->
+<!-- ══════════ PRICING PAGE ══════════ -->
 <div class="page" id="pricingPage">
   <div class="app-header">
     <button class="back-btn" onclick="showPage('successPage')">←</button>
@@ -988,614 +457,454 @@ body {
     <span></span>
   </div>
   <div class="pricing-body">
-    <div class="pricing-header">
-      <h2>💎 Upgrade to Premium</h2>
-      <p>Unlock full access — real Gmail + password</p>
+    <div class="pricing-hdr">
+      <h2 style="font-size:24px;font-weight:800">💎 Upgrade to Premium</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:6px">See real Gmail + Password instantly</p>
     </div>
     <div id="planCards"></div>
   </div>
 </div>
 
 <!-- Payment Modal -->
-<div class="modal-overlay" id="paymentModal">
-  <div class="payment-modal-box">
-    <div class="payment-title">💳 Complete Payment</div>
-    <div class="payment-sub" id="payModalPlan">Plan: 30 Days — ৳3300</div>
-    <div class="payment-method">
-      <div class="payment-logo bkash-logo">bK</div>
-      <div class="payment-info">
-        <div class="payment-name">bKash</div>
-        <div class="payment-num">01313267554</div>
-      </div>
-      <button class="btn-copy-pay" onclick="copyText('01313267554')">Copy</button>
+<div class="modal-overlay" id="payModal">
+  <div class="pay-box">
+    <div style="font-size:18px;font-weight:800;margin-bottom:4px">💳 Complete Payment</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="payPlanLabel">Plan: 30 Days — ৳3300</div>
+    <div class="pay-method">
+      <div class="pay-logo" style="background:#E2136E">bK</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">bKash</div><div class="pay-num">01313267554</div></div>
+      <button class="pay-copy" onclick="cp('01313267554')">Copy</button>
     </div>
-    <div class="payment-method">
-      <div class="payment-logo nagad-logo">Ng</div>
-      <div class="payment-info">
-        <div class="payment-name">Nagad</div>
-        <div class="payment-num">01313267551</div>
-      </div>
-      <button class="btn-copy-pay" onclick="copyText('01313267551')">Copy</button>
+    <div class="pay-method">
+      <div class="pay-logo" style="background:#F05A28">Ng</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">Nagad</div><div class="pay-num">01313267551</div></div>
+      <button class="pay-copy" onclick="cp('01313267551')">Copy</button>
     </div>
-    <div class="payment-note">
-      📸 Send payment screenshot to Telegram after paying
-    </div>
-    <button class="btn-tg-pay" onclick="window.open('https://t.me/tarakislam1','_blank')">
-      ✈️ Send Screenshot → @tarakislam1
-    </button>
-    <button class="btn-close-pay" onclick="closeModal('paymentModal')">✕ Close</button>
+    <div class="pay-note">📸 Send payment screenshot to Telegram after paying</div>
+    <button style="width:100%;background:#229ED9;border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Send Screenshot → @tarakislam1</button>
+    <button style="width:100%;background:transparent;border:2px solid var(--border);border-radius:12px;padding:12px;color:var(--muted);font-size:14px;cursor:pointer" onclick="closeM('payModal')">✕ Close</button>
   </div>
 </div>
 
 <!-- Premium Required Popup -->
 <div class="modal-overlay" id="premiumPopup">
   <div class="modal-box" style="border:2px solid var(--warning)">
-    <div class="popup-icon">👑</div>
-    <div class="modal-title">Premium Required</div>
-    <div class="modal-sub">Upgrade to Premium to access this feature and view real Gmail accounts</div>
-    <button class="btn-buy-premium" onclick="closeModal('premiumPopup');showPage('pricingPage')">
-      💎 Buy Premium Now
-    </button>
-    <button class="btn-tg-premium" onclick="window.open('https://t.me/tarakislam1','_blank')">
-      ✈️ Contact on Telegram
-    </button>
-    <button class="btn-close-popup" onclick="closeModal('premiumPopup')">✕ Close</button>
+    <div style="font-size:48px;margin-bottom:12px">👑</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px">Premium Required</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Upgrade to see real Gmail accounts & passwords</div>
+    <button class="btn-buy-prem" onclick="closeM('premiumPopup');showPage('pricingPage')">💎 Buy Premium Now</button>
+    <button class="btn-tg-prem" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Contact on Telegram</button>
+    <button class="btn-close-pop" onclick="closeM('premiumPopup')">✕ Close</button>
   </div>
 </div>
 
-<!-- ===================== FIREBASE + LOGIC ===================== -->
+<!-- ══════════════════════════════════════
+     FIREBASE + APP LOGIC
+══════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get, set, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",
-  authDomain: "pro-tools-hub1-f4d55.firebaseapp.com",
-  databaseURL: "https://pro-tools-hub1-f4d55-default-rtdb.firebaseio.com",
-  projectId: "pro-tools-hub1-f4d55",
-  storageBucket: "pro-tools-hub1-f4d55.firebasestorage.app",
-  messagingSenderId: "637104919815",
-  appId: "1:637104919815:web:198ff9faf881971481a1a2"
+const FB = {
+  apiKey:"AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",
+  authDomain:"pro-tools-hub1-f4d55.firebaseapp.com",
+  databaseURL:"https://pro-tools-hub1-f4d55-default-rtdb.firebaseio.com",
+  projectId:"pro-tools-hub1-f4d55",
+  storageBucket:"pro-tools-hub1-f4d55.firebasestorage.app",
+  messagingSenderId:"637104919815",
+  appId:"1:637104919815:web:198ff9faf881971481a1a2"
 };
+const app = initializeApp(FB);
+const db  = getDatabase(app);
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// ── State ──
+let curKey=null, curKD=null, isTrial=false;
+let totalAcc=1, genAccs=[], stopped=false, accIdx=0;
 
-// ===== GLOBALS =====
-let currentKey = null;
-let currentKeyData = null;
-let deviceId = localStorage.getItem('pth_device_id');
-if (!deviceId) {
-  deviceId = 'dev_' + Math.random().toString(36).substr(2,12) + Date.now().toString(36);
-  localStorage.setItem('pth_device_id', deviceId);
+// ── Device ID ──
+let devId = localStorage.getItem('pth_device_id');
+if(!devId){ devId='dv_'+Math.random().toString(36).substr(2,10)+Date.now().toString(36); localStorage.setItem('pth_device_id',devId); }
+
+// ── Helpers ──
+const $  = id => document.getElementById(id);
+const sl = ms => new Promise(r=>setTimeout(r,ms));
+const ri = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+const ra = arr => arr[Math.floor(Math.random()*arr.length)];
+
+function showLoad(){ $('loadingOverlay').classList.remove('hidden'); }
+function hideLoad(){ $('loadingOverlay').classList.add('hidden'); }
+window.showPage = id=>{ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); $(id).classList.add('active'); };
+window.closeM  = id=>{ $(id).classList.remove('show'); };
+window.cp = t=>{ navigator.clipboard.writeText(t).then(()=>toast('✅ Copied!')); };
+
+function toast(msg,d=2500){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),d);
 }
 
-let isTrial = false;
-let totalAccounts = 1;
-let generatedAccounts = [];
-let autoInterval = null;
-let autoStopped = false;
-let currentAccIdx = 0;
-
-// ===== SHOW/HIDE LOADING =====
-function showLoading(){ document.getElementById('loadingOverlay').classList.remove('hidden'); }
-function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); }
-
-// ===== TOAST =====
-window.showToast = function(msg, dur=2500){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), dur);
-};
-
-// ===== PAGE NAV =====
-window.showPage = function(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-};
-
-window.closeModal = function(id){
-  document.getElementById(id).classList.remove('show');
-};
-
-// ===== NOTICE via onValue =====
-onValue(ref(db,'notice'), snap=>{
-  const data = snap.val();
-  const banner = document.getElementById('noticeBanner');
-  if(data && data.active && data.text){
-    banner.textContent = data.text;
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
+// ── Notice ──
+onValue(ref(db,'notice'),snap=>{
+  const d=snap.val(), b=$('noticeBanner');
+  if(d&&d.active&&d.text){ b.textContent=d.text; b.classList.add('show'); }
+  else b.classList.remove('show');
 });
 
-// ===== KEY FORMAT =====
-window.formatKey = function(input){
-  let v = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  let parts = [];
-  for(let i=0;i<v.length&&i<12;i+=4) parts.push(v.substr(i,4));
-  input.value = parts.join('-');
+// ── Key Format ──
+window.fmtKey = inp=>{
+  let v=inp.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  let p=[]; for(let i=0;i<v.length&&i<12;i+=4) p.push(v.substr(i,4));
+  inp.value=p.join('-');
 };
 
-// ===== VALIDATE KEY =====
-window.validateKey = async function(){
-  const raw = document.getElementById('keyInput').value.trim();
-  if(raw.length !== 14){ showToast('❌ Enter a valid key (XXXX-XXXX-XXXX)'); return; }
-  showLoading();
-  try {
-    const keyPath = raw.replace(/-/g,'_');
-    const snap = await get(ref(db,`keys/${keyPath}`));
-    if(!snap.exists()){ hideLoading(); showToast('❌ Invalid key'); return; }
-    const kd = snap.val();
-    if(!kd.active){ hideLoading(); showToast('❌ Key is disabled'); return; }
-    // Expiry check
-    if(kd.expiry){
-      if(new Date(kd.expiry) < new Date()){ hideLoading(); showToast('❌ Key expired'); return; }
+// ── Validate Key ──
+window.validateKey = async()=>{
+  const raw=$('keyInput').value.trim();
+  if(raw.length!==14){ toast('❌ Enter valid key (XXXX-XXXX-XXXX)'); return; }
+  showLoad();
+  try{
+    const kp=raw.replace(/-/g,'_');
+    const snap=await get(ref(db,'keys/'+kp));
+    if(!snap.exists()){ hideLoad(); toast('❌ Invalid key'); return; }
+    const kd=snap.val();
+    if(!kd.active){ hideLoad(); toast('❌ Key disabled'); return; }
+    if(kd.expiry&&new Date(kd.expiry)<new Date()){ hideLoad(); toast('❌ Key expired'); return; }
+    const used=kd.usedBy||{};
+    if(kd.type==='premium'&&Object.keys(used).length>0&&!used[devId]){ hideLoad(); toast('❌ Key used on another device'); return; }
+    if(kd.type==='trial'){
+      const ts=await get(ref(db,'trialUsed/'+devId));
+      if(ts.exists()){ hideLoad(); toast('❌ Trial already used on this device'); return; }
     }
-    // Device check
-    const usedBy = kd.usedBy || {};
-    if(kd.type === 'premium'){
-      const ids = Object.keys(usedBy);
-      if(ids.length > 0 && !usedBy[deviceId]){
-        hideLoading(); showToast('❌ Key already used on another device'); return;
-      }
-    } else {
-      // Trial: check if this device already used ANY trial
-      const trialUsedSnap = await get(ref(db,'trialUsed/'+deviceId));
-      if(trialUsedSnap.exists()){
-        hideLoading(); showToast('❌ Trial already used on this device'); return;
-      }
-    }
-    // Register device
-    const updates = {};
-    updates[`keys/${keyPath}/usedBy/${deviceId}`] = deviceId;
-    if(kd.type === 'trial'){
-      updates[`trialUsed/${deviceId}`] = true;
-    }
-    updates[`activity/${keyPath}_${deviceId}`] = {
-      key: raw, deviceId, loginAt: new Date().toISOString(), type: kd.type
-    };
-    await update(ref(db), updates);
-
-    currentKey = raw; currentKeyData = kd;
-    isTrial = kd.type === 'trial';
-    localStorage.setItem('pth_saved_key', raw);
-    hideLoading();
-
-    // Show modal
-    const icon = document.getElementById('unlockIcon');
-    const title = document.getElementById('unlockTitle');
-    const sub = document.getElementById('unlockSub');
-    const info = document.getElementById('keyInfoText');
+    const upd={};
+    upd['keys/'+kp+'/usedBy/'+devId]=devId;
+    if(kd.type==='trial') upd['trialUsed/'+devId]=true;
+    upd['activity/'+kp+'_'+devId]={key:raw,deviceId:devId,loginAt:new Date().toISOString(),type:kd.type};
+    await update(ref(db),upd);
+    curKey=raw; curKD=kd; isTrial=kd.type==='trial';
+    localStorage.setItem('pth_saved_key',raw);
+    hideLoad();
+    // Modal
     if(isTrial){
-      icon.textContent='🔑'; title.textContent='Trial Unlocked 🔑';
-      sub.textContent='Limited access — upgrade for full features';
-      info.textContent='Trial Key • 10 accounts • Blurred output';
-      document.getElementById('keyInfoBadge').style.borderColor='rgba(255,214,0,0.4)';
-      document.getElementById('keyInfoBadge').style.background='rgba(255,214,0,0.08)';
+      $('uIcon').textContent='🔑'; $('uTitle').textContent='Trial Unlocked 🔑';
+      $('uSub').textContent='Limited access — upgrade for full features';
+      $('uInfo').textContent='Trial Key • 10 accounts • Blurred output';
     } else {
-      icon.textContent='💎'; title.textContent='Premium Unlocked 💎';
-      sub.textContent='Full access granted!';
-      const plan = kd.plan || 'Lifetime';
-      const exp = kd.expiry ? new Date(kd.expiry).toLocaleDateString() : 'Never';
-      info.textContent=`Plan: ${plan} • Expires: ${exp}`;
+      $('uIcon').textContent='💎'; $('uTitle').textContent='Premium Unlocked 💎';
+      $('uSub').textContent='Full access granted!';
+      $('uInfo').textContent='Plan: '+(kd.plan||'Lifetime')+' • Expires: '+(kd.expiry?new Date(kd.expiry).toLocaleDateString():'Never');
     }
-    document.getElementById('unlockModal').classList.add('show');
-  } catch(e){
-    hideLoading(); showToast('❌ Error: '+e.message);
-  }
+    $('unlockModal').classList.add('show');
+  }catch(e){ hideLoad(); toast('❌ '+e.message); }
 };
 
-window.startApp = function(){
-  closeModal('unlockModal');
-  // Trial: lock count
-  if(isTrial){
-    document.getElementById('countInput').value = 10;
-    document.getElementById('countInput').disabled = true;
-    document.getElementById('trialCountNote').style.display='block';
-  }
+window.startApp=()=>{
+  closeM('unlockModal');
+  if(isTrial){ $('cntInp').value=10; $('cntInp').disabled=true; $('trialNote').style.display='block'; }
   showPage('setupPage');
 };
 
-// ===== REGION SELECT =====
-window.selectRegion = function(el, region){
-  document.querySelectorAll('.region-card').forEach(c=>{
-    c.classList.remove('selected');
-    c.querySelector('.region-check').textContent='';
-  });
-  el.classList.add('selected');
-  el.querySelector('.region-check').textContent='✓';
+// ── Region ──
+window.selRegion=el=>{
+  document.querySelectorAll('.region-card').forEach(c=>{ c.classList.remove('sel'); c.querySelector('.region-chk').textContent=''; });
+  el.classList.add('sel'); el.querySelector('.region-chk').textContent='✓';
 };
 
-// ===== COUNT =====
-window.changeCount = function(d){
-  if(isTrial) return;
-  const inp = document.getElementById('countInput');
-  let v = parseInt(inp.value)||1;
-  v = Math.max(1, Math.min(999, v+d));
-  inp.value = v;
-};
-window.clampCount = function(){
-  if(isTrial){ document.getElementById('countInput').value=10; return; }
-  const inp = document.getElementById('countInput');
-  let v = parseInt(inp.value)||1;
-  v = Math.max(1, Math.min(999, v));
-  inp.value = v;
-};
+// ── Count ──
+window.chgCount=d=>{ if(isTrial)return; const i=$('cntInp'); i.value=Math.max(1,Math.min(999,(parseInt(i.value)||1)+d)); };
+window.clampCnt=()=>{ if(isTrial){$('cntInp').value=10;return;} const i=$('cntInp'); i.value=Math.max(1,Math.min(999,parseInt(i.value)||1)); };
+window.logout=()=>{ curKey=null; localStorage.removeItem('pth_saved_key'); $('keyInput').value=''; showPage('keyPage'); };
 
-// ===== LOGOUT =====
-window.logout = function(){
-  currentKey=null; currentKeyData=null;
-  localStorage.removeItem('pth_saved_key');
-  document.getElementById('keyInput').value='';
-  showPage('keyPage');
-};
+// ── Data Generators ──
+const FN=['Alex','Jordan','Morgan','Riley','Casey','Taylor','Jamie','Avery','Cameron','Drew','Blake','Sky','River','Quinn','Sage','Noah','Liam','Emma','Olivia','Ava','Sophia','Mason','Ethan','Lucas'];
+const LN=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Thompson','Lee','Walker'];
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const GN=['Male','Female','Rather not say'];
 
-// ===== RANDOM DATA GENERATORS =====
-const firstNames=['Alex','Jordan','Morgan','Riley','Casey','Taylor','Jamie','Avery','Cameron','Drew','Blake','Sky','River','Quinn','Sage'];
-const lastNames=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White'];
-const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function randItem(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function randPass(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
-  let p='';
-  for(let i=0;i<12;i++) p+=chars[Math.floor(Math.random()*chars.length)];
-  return p;
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+  let p=''; for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)]; return p;
 }
-function genAccount(){
-  const fn=randItem(firstNames), ln=randItem(lastNames);
-  const year=randInt(1985,2002), mon=randInt(1,12), day=randInt(1,28);
-  const num=randInt(10,999);
-  const email=`${fn.toLowerCase()}.${ln.toLowerCase()}${num}@gmail.com`;
+function genAcc(){
+  const fn=ra(FN),ln=ra(LN);
+  const num=ri(10,999);
+  const email=fn.toLowerCase()+'.'+ln.toLowerCase()+num+'@gmail.com';
   const pass=randPass();
-  const dob=`${randItem(months).substr(0,3)} ${day}, ${year}`;
-  return {fn,ln,email,pass,dob,year};
+  const dob=ra(MN).substr(0,3)+' '+ri(1,28)+', '+ri(1985,2003);
+  const gender=ra(GN);
+  return {fn,ln,email,pass,dob,gender};
 }
 
-// ===== AUTOMATION =====
-window.startAutomation = function(){
-  totalAccounts = isTrial ? 10 : (parseInt(document.getElementById('countInput').value)||1);
-  generatedAccounts = [];
-  autoStopped = false;
-  currentAccIdx = 0;
+// ── Automation ──
+window.startAuto=()=>{
+  totalAcc=isTrial?10:(parseInt($('cntInp').value)||1);
+  genAccs=[]; stopped=false; accIdx=0;
   showPage('autoPage');
-  runNextAccount();
+  runNext();
 };
 
-window.stopAutomation = function(){
-  autoStopped = true;
-  clearTimeout(autoInterval);
-  if(generatedAccounts.length > 0){
-    showSuccessPage();
-  } else {
-    showPage('setupPage');
-  }
+window.stopAuto=()=>{
+  stopped=true;
+  if(genAccs.length>0) showSuccess();
+  else showPage('setupPage');
 };
 
-function updateProgress(){
-  const pct = (currentAccIdx / totalAccounts) * 100;
-  document.getElementById('autoProgressFill').style.width = pct+'%';
-  document.getElementById('autoStatusVal').textContent =
-    `Creating: ${currentAccIdx} / ${totalAccounts}`;
+function updProgress(){
+  $('autoPfill').style.width=(accIdx/totalAcc*100)+'%';
+  $('autoStat').textContent='Creating: '+accIdx+' / '+totalAcc;
 }
 
-async function runNextAccount(){
-  if(autoStopped) return;
-  if(currentAccIdx >= totalAccounts){
-    showSuccessPage(); return;
-  }
-  updateProgress();
-  const acc = genAccount();
-  await animateAccountCreation(acc);
-  if(!autoStopped){
-    generatedAccounts.push(acc);
-    currentAccIdx++;
-    // Short pause between accounts
-    if(currentAccIdx < totalAccounts){
-      await sleep(600);
-      runNextAccount();
-    } else {
-      updateProgress();
-      showSuccessPage();
-    }
-  }
+async function runNext(){
+  if(stopped)return;
+  if(accIdx>=totalAcc){ showSuccess(); return; }
+  updProgress();
+  const acc=genAcc();
+  await animateAcc(acc);
+  if(!stopped){ genAccs.push(acc); accIdx++; updProgress(); await sl(500); runNext(); }
 }
 
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+// ── Field Helpers ──
+function cursor(){ return '<span class="g-cursor"></span>'; }
+function setAct(id){ const e=$(id); e.classList.add('act'); e.classList.remove('done'); }
+function setDone(id){ const e=$(id); e.classList.remove('act'); e.classList.add('done'); }
+function dot(i,s){ const e=$('gd'+i); e.className='g-dot'+(s==='active'?' active':s==='done'?' done':''); }
 
-async function typeInto(el, text, speed=55){
-  el.innerHTML = '<span class="g-cursor"></span>';
-  el.classList.add('active-field');
+function showF(id){
+  const el=$(id); el.style.display='block';
+  el.style.opacity='0'; el.style.transform='translateY(12px)';
+  requestAnimationFrame(()=>{ el.style.transition='all 0.4s'; el.style.opacity='1'; el.style.transform='translateY(0)'; });
+}
+
+function resetForm(){
+  ['gf_ln','gf_dob','gf_gen','gf_em','gf_pw','gf_cp'].forEach(f=>$(f).style.display='none');
+  ['gi_fn','gi_ln','gi_dob','gi_em','gi_pw','gi_cp'].forEach(id=>{ const e=$(id); e.innerHTML=''; e.className='g-input'+(id==='gi_pw'||id==='gi_cp'?' pass-field':''); });
+  for(let i=0;i<4;i++) dot(i,'');
+  dot(0,'active');
+  $('gNextBtn').className='g-next-btn';
+  $('emAvail').style.display='none';
+  $('checkOv').className='checking-ov';
+  $('gUrl').textContent='accounts.google.com/signup';
+  $('gi_gen_val').textContent='';
+}
+
+async function typeIn(id,text,spd=70){
+  const el=$(id);
+  setAct(id);
+  el.innerHTML=cursor();
   for(let i=0;i<text.length;i++){
-    if(autoStopped) return;
-    const cursor = el.querySelector('.g-cursor');
-    const before = text.substr(0,i+1);
-    el.innerHTML = before + '<span class="g-cursor"></span>';
-    await sleep(speed + randInt(-15,15));
+    if(stopped)return;
+    el.innerHTML=text.substr(0,i+1)+cursor();
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    await sl(spd+ri(-10,12));
   }
-  el.classList.remove('active-field');
-  el.classList.add('filled');
+  setDone(id);
 }
 
-async function animateAccountCreation(acc){
-  // Reset form
-  const fields = ['gField0','gField1','gFieldDob','gFieldEmail','gFieldPass'];
-  fields.forEach(f=>{ document.getElementById(f).style.display='none'; });
-  ['gInput0','gInput1','gInputDob','gInputEmail','gInputPass'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.className='g-field-input'; el.innerHTML='';
-  });
+async function animateAcc(acc){
+  resetForm();
+
+  // ── Step 0: Name ──
+  $('gTitle').textContent='Create your Google Account';
+  $('gSub').textContent='Enter your name to get started';
+  await typeIn('gi_fn',acc.fn,85);
+  await sl(350);
+  showF('gf_ln'); await sl(200);
+  await typeIn('gi_ln',acc.ln,85);
+  await sl(400);
+  $('gNextBtn').classList.add('on');
+  await sl(500);
+
+  // ── Step 1: Birthday + Gender ──
+  dot(0,'done'); dot(1,'active');
+  $('gUrl').textContent='accounts.google.com/signup/birthdate';
+  $('gTitle').textContent="What's your birthday?";
+  $('gSub').textContent='We use this to verify your age';
+  $('gNextBtn').classList.remove('on');
+  showF('gf_dob'); await sl(250);
+  await typeIn('gi_dob',acc.dob,72);
+  await sl(350);
+  showF('gf_gen');
+  $('gi_gen_val').textContent=acc.gender;
+  await sl(600);
+  $('gNextBtn').classList.add('on');
+  await sl(500);
+
+  // ── Step 2: Gmail ──
+  dot(1,'done'); dot(2,'active');
+  $('gUrl').textContent='accounts.google.com/signup/username';
+  $('gTitle').textContent='Choose your Gmail address';
+  $('gSub').textContent='This will be your Google Account username';
+  $('gNextBtn').classList.remove('on');
+  showF('gf_em'); await sl(250);
+  await typeIn('gi_em',acc.email,52);
+  await sl(400);
+  $('emAvail').style.display='block';
+  await sl(500);
+  $('gNextBtn').classList.add('on');
+  await sl(500);
+
+  // ── Step 3: Password ──
+  dot(2,'done'); dot(3,'active');
+  $('gUrl').textContent='accounts.google.com/signup/password';
+  $('gTitle').textContent='Create a strong password';
+  $('gSub').textContent='Use 8+ characters — mix letters, numbers & symbols';
+  $('gNextBtn').classList.remove('on');
+  showF('gf_pw'); await sl(250);
+  await typeIn('gi_pw','●'.repeat(acc.pass.length),58);
+  await sl(350);
+  showF('gf_cp'); await sl(200);
+  await typeIn('gi_cp','●'.repeat(acc.pass.length),50);
+  await sl(400);
+  $('gNextBtn').classList.add('on');
+  await sl(500);
+
+  // ── Checking ──
+  dot(3,'done');
+  $('gUrl').textContent='accounts.google.com/signup/verify';
+  if(!stopped) await runChecking();
+}
+
+async function runChecking(){
+  const ov=$('checkOv'); ov.classList.add('show');
+  const ci=['ci0','ci1','ci2','ci3'], cd=['cd0','cd1','cd2','cd3'];
+  const ct=['Checking username availability','Validating your information','Setting up account security','Creating your Google Account'];
+  ci.forEach((c,i)=>{ $(c).className='check-item'; $(cd[i]).innerHTML=''; $(cd[i]).style.background='#e8eaed'; });
   for(let i=0;i<4;i++){
-    document.getElementById('gStep'+i).className='g-step'+(i===0?' active':'');
+    if(stopped)break;
+    $('checkTitle').textContent=ct[i];
+    $(ci[i]).className='check-item act';
+    $(cd[i]).style.background='#1a73e8';
+    $(cd[i]).innerHTML='<div style="width:8px;height:8px;border-radius:50%;background:#fff"></div>';
+    await sl(850);
+    $(ci[i]).className='check-item ok';
+    $(cd[i]).style.background='#34A853';
+    $(cd[i]).innerHTML='✓';
+    $(cd[i]).style.color='#fff';
+    $(cd[i]).style.fontSize='11px';
   }
-  document.getElementById('checkingOverlay').classList.remove('show');
-
-  // Step 0: Name
-  document.getElementById('gFormTitle').textContent = 'Create your Google Account';
-  document.getElementById('gFormSub').textContent = 'Enter your name to get started';
-  document.getElementById('gField0').style.display='block';
-  document.getElementById('gField1').style.display='block';
-  if(autoStopped)return;
-  await typeInto(document.getElementById('gInput0'), acc.fn, 80);
-  if(autoStopped)return;
-  await sleep(300);
-  document.getElementById('gInput1').classList.add('active-field');
-  await typeInto(document.getElementById('gInput1'), acc.ln, 80);
-  await sleep(500);
-
-  // Step 1: DOB
-  document.getElementById('gStep0').className='g-step done';
-  document.getElementById('gStep1').className='g-step active';
-  document.getElementById('gFormTitle').textContent = 'What\'s your birthday?';
-  document.getElementById('gFormSub').textContent = 'We use this to verify your age';
-  document.getElementById('gFieldDob').style.display='block';
-  if(autoStopped)return;
-  await typeInto(document.getElementById('gInputDob'), acc.dob, 70);
-  await sleep(500);
-
-  // Step 2: Email
-  document.getElementById('gStep1').className='g-step done';
-  document.getElementById('gStep2').className='g-step active';
-  document.getElementById('gFormTitle').textContent = 'Choose your Gmail address';
-  document.getElementById('gFormSub').textContent = 'This will be your Google Account username';
-  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/username';
-  document.getElementById('gFieldEmail').style.display='block';
-  if(autoStopped)return;
-  await typeInto(document.getElementById('gInputEmail'), acc.email, 50);
-  await sleep(400);
-
-  // Step 3: Password
-  document.getElementById('gStep2').className='g-step done';
-  document.getElementById('gStep3').className='g-step active';
-  document.getElementById('gFormTitle').textContent = 'Create a strong password';
-  document.getElementById('gFormSub').textContent = 'Use 8+ characters with letters, numbers & symbols';
-  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/password';
-  document.getElementById('gFieldPass').style.display='block';
-  if(autoStopped)return;
-  await typeInto(document.getElementById('gInputPass'), acc.pass.replace(/./g,'•'), 60);
-  await sleep(400);
-
-  // Checking overlay
-  document.getElementById('gStep3').className='g-step done';
-  document.getElementById('gUrl').textContent = 'accounts.google.com/signup/verify';
-  if(autoStopped)return;
-  await runCheckingAnimation();
+  $('checkTitle').textContent='Account created successfully! ✓';
+  $('checkSub').textContent='';
+  await sl(700);
+  ov.classList.remove('show');
 }
 
-async function runCheckingAnimation(){
-  const overlay = document.getElementById('checkingOverlay');
-  overlay.classList.add('show');
-  const steps = ['cs0','cs1','cs2','cs3'];
-  for(let i=0;i<steps.length;i++){
-    if(autoStopped) break;
-    document.getElementById(steps[i]).className='check-step-item active';
-    await sleep(600);
-    document.getElementById(steps[i]).className='check-step-item done';
-    document.getElementById(steps[i]).querySelector('.check-dot').style.background='#34A853';
-  }
-  await sleep(400);
-  overlay.classList.remove('show');
-  // Reset check dots
-  steps.forEach(s=>{
-    document.getElementById(s).className='check-step-item';
-    document.getElementById(s).querySelector('.check-dot').style.background='#dadce0';
-  });
-}
+// ── Success Page ──
+function showSuccess(){
+  const c=$('accCards'); c.innerHTML='';
+  $('succTitle').textContent=genAccs.length+' Accounts Generated! 🎉';
+  $('succSub').textContent=genAccs.length+' Gmail accounts ready';
 
-// ===== SUCCESS PAGE =====
-function showSuccessPage(){
-  const container = document.getElementById('accountCards');
-  container.innerHTML='';
-  document.getElementById('successTitle').textContent=`${generatedAccounts.length} Accounts Generated! 🎉`;
-  document.getElementById('successCount').textContent=`${generatedAccounts.length} Gmail accounts ready`;
-
-  generatedAccounts.forEach((acc,i)=>{
-    const card = document.createElement('div');
-    card.className='account-card';
-    card.id='card_'+i;
-
+  genAccs.forEach((acc,i)=>{
+    const card=document.createElement('div');
+    card.className='acc-card'; card.id='card_'+i;
     if(isTrial){
       card.innerHTML=`
-        <div class="account-card-num">Account #${i+1}</div>
-        <div class="account-field-row">
-          <div class="account-field-label">Gmail Address</div>
-          <div class="account-field-val">
-            <span class="blur-text">${acc.email}</span>
-          </div>
-        </div>
-        <div class="account-field-row">
-          <div class="account-field-label">Password</div>
-          <div class="account-field-val">
-            <span class="blur-text">${acc.pass}</span>
-          </div>
-        </div>
-        <div class="lock-overlay" onclick="showPremiumPopup()">
-          <div class="lock-overlay-icon">🔒</div>
-          <div class="lock-overlay-text">Tap to Unlock — Premium Required</div>
-        </div>
-      `;
+        <div class="acc-num">Account #${i+1}</div>
+        <div class="acc-row"><div class="acc-label">Gmail Address</div>
+          <div class="acc-val"><span class="blur">${acc.email}</span></div></div>
+        <div class="acc-row"><div class="acc-label">Password</div>
+          <div class="acc-val"><span class="blur">${acc.pass}</span></div></div>
+        <div class="lock-ov" onclick="showPremPop()">
+          <div style="font-size:30px">🔒</div>
+          <div style="font-size:12px;color:var(--warning);font-weight:700">Tap to Unlock — Premium Required</div>
+        </div>`;
     } else {
       card.innerHTML=`
-        <div class="account-card-num">Account #${i+1}</div>
-        <div class="account-field-row">
-          <div class="account-field-label">Gmail Address</div>
-          <div class="account-field-val">
+        <div class="acc-num">Account #${i+1}</div>
+        <div class="acc-row"><div class="acc-label">Gmail Address</div>
+          <div class="acc-val">
             <span id="em_${i}">${acc.email}</span>
-            <button class="copy-btn-sm" onclick="copyText('${acc.email}')">Copy</button>
-          </div>
-        </div>
-        <div class="account-field-row">
-          <div class="account-field-label">Password</div>
-          <div class="account-field-val">
-            <span id="pw_${i}" class="blur-text">${acc.pass}</span>
-            <button class="reveal-toggle" id="rv_${i}" onclick="toggleReveal(${i},'${acc.pass}')">Show</button>
-            <button class="copy-btn-sm" id="cp_${i}" onclick="copyText('${acc.pass}')">Copy</button>
-          </div>
-        </div>
-      `;
+            <button class="copy-sm" onclick="cp('${acc.email}')">Copy</button>
+          </div></div>
+        <div class="acc-row"><div class="acc-label">Password</div>
+          <div class="acc-val">
+            <span id="pw_${i}" class="blur">${acc.pass}</span>
+            <button class="reveal-btn" id="rb_${i}" onclick="togRev(${i},'${acc.pass}')">Show</button>
+            <button class="copy-sm" onclick="cp('${acc.pass}')">Copy</button>
+          </div></div>`;
     }
-    container.appendChild(card);
+    c.appendChild(card);
   });
 
   if(isTrial){
-    document.getElementById('btnRevealAll').onclick=showPremiumPopup;
-    document.getElementById('btnCopyAll').onclick=showPremiumPopup;
+    $('btnRevAll').onclick=showPremPop;
+    $('btnCopyAll').onclick=showPremPop;
   }
   showPage('successPage');
 }
 
-let allRevealed = false;
-window.toggleReveal = function(i, pass){
-  const el = document.getElementById('pw_'+i);
-  const btn = document.getElementById('rv_'+i);
-  if(el.classList.contains('blur-text')){
-    el.classList.remove('blur-text'); btn.textContent='Hide';
-  } else {
-    el.classList.add('blur-text'); btn.textContent='Show';
-  }
+window.togRev=(i,pass)=>{
+  const el=$('pw_'+i), btn=$('rb_'+i);
+  if(el.classList.contains('blur')){ el.classList.remove('blur'); btn.textContent='Hide'; }
+  else { el.classList.add('blur'); btn.textContent='Show'; }
 };
-
-window.revealAllPasswords = function(){
-  if(isTrial){ showPremiumPopup(); return; }
-  generatedAccounts.forEach((_,i)=>{
-    const el=document.getElementById('pw_'+i);
-    const btn=document.getElementById('rv_'+i);
-    if(el){ el.classList.remove('blur-text'); if(btn)btn.textContent='Hide'; }
-  });
-  showToast('✅ All passwords revealed');
+window.revealAll=()=>{
+  if(isTrial){showPremPop();return;}
+  genAccs.forEach((_,i)=>{ const e=$('pw_'+i),b=$('rb_'+i); if(e){e.classList.remove('blur');if(b)b.textContent='Hide';} });
+  toast('✅ All passwords revealed');
 };
-
-window.copyAllData = function(){
-  if(isTrial){ showPremiumPopup(); return; }
-  let text='PRO TOOLS HUB — Generated Accounts\n';
-  text+='================================\n';
-  generatedAccounts.forEach((acc,i)=>{
-    text+=`Account ${i+1}:\nEmail: ${acc.email}\nPassword: ${acc.pass}\n\n`;
-  });
-  navigator.clipboard.writeText(text).then(()=>showToast('✅ All data copied!'));
+window.copyAll=()=>{
+  if(isTrial){showPremPop();return;}
+  let t='PRO TOOLS HUB — Generated Accounts\n'+'='.repeat(36)+'\n';
+  genAccs.forEach((a,i)=>{ t+=`Account ${i+1}:\nEmail: ${a.email}\nPassword: ${a.pass}\n\n`; });
+  navigator.clipboard.writeText(t).then(()=>toast('✅ All data copied!'));
 };
+window.showPremPop=()=>{ $('premiumPopup').classList.add('show'); };
 
-window.copyText = function(t){
-  navigator.clipboard.writeText(t).then(()=>showToast('✅ Copied!'));
-};
-
-window.showPremiumPopup = function(){
-  document.getElementById('premiumPopup').classList.add('show');
-};
-
-// ===== PRICING =====
-async function loadPricing(){
-  try {
-    const snap = await get(ref(db,'plans'));
-    let plans = snap.val();
-    if(!plans) plans = defaultPlans();
-    renderPlans(plans);
-  } catch(e){ renderPlans(defaultPlans()); }
+// ── Pricing ──
+async function loadPlans(){
+  try{ const s=await get(ref(db,'plans')); renderPlans(s.val()||defPlans()); }
+  catch{ renderPlans(defPlans()); }
 }
-
-function defaultPlans(){
-  return [
-    {name:'7 Days',days:7,price:1200,discount:0,popular:false},
-    {name:'15 Days',days:15,price:2200,discount:0,popular:false},
-    {name:'30 Days',days:30,price:3300,discount:0,popular:true},
-    {name:'Lifetime',days:0,price:5500,discount:0,popular:false}
-  ];
+function defPlans(){
+  return [{name:'7 Days',days:7,price:1200,discount:0,popular:false},{name:'15 Days',days:15,price:2200,discount:0,popular:false},{name:'30 Days',days:30,price:3300,discount:0,popular:true},{name:'Lifetime',days:0,price:5500,discount:0,popular:false}];
 }
-
 function renderPlans(plans){
-  const container=document.getElementById('planCards');
-  container.innerHTML='';
   const arr=Array.isArray(plans)?plans:Object.values(plans);
-  arr.forEach((plan,i)=>{
-    const disc=parseInt(plan.discount)||0;
-    const origPrice=parseInt(plan.price)||0;
-    const finalPrice=disc>0?Math.round(origPrice*(1-disc/100)):origPrice;
-    const card=document.createElement('div');
-    card.className='plan-card'+(plan.popular?' popular':'');
-    const features=[
-      'Unlimited account generation',
-      'Real Gmail + Password visible',
-      'Copy all data instantly',
-      'Priority server access',
-      plan.days===0?'Never expires':`Valid for ${plan.days} days`
-    ];
-    card.innerHTML=`
-      ${plan.popular?'<div class="popular-tag">🔥 POPULAR</div>':''}
-      <div class="plan-name">${plan.name}</div>
-      <div class="plan-duration">${plan.days===0?'Lifetime access':`${plan.days} days access`}</div>
-      <div class="plan-price-wrap">
-        ${disc>0?`<div class="plan-original">৳${origPrice}</div>`:''}
-        <div class="plan-price">৳${finalPrice}<span>/plan</span>
-          ${disc>0?`<span class="discount-badge">${disc}% OFF</span>`:''}
-        </div>
-      </div>
-      <ul class="plan-features">
-        ${features.map(f=>`<li>${f}</li>`).join('')}
+  $('planCards').innerHTML='';
+  arr.forEach(p=>{
+    const disc=parseInt(p.discount)||0, orig=parseInt(p.price)||0;
+    const final=disc>0?Math.round(orig*(1-disc/100)):orig;
+    const d=document.createElement('div');
+    d.className='plan-card'+(p.popular?' pop':'');
+    d.innerHTML=`
+      ${p.popular?'<div class="pop-tag">🔥 POPULAR</div>':''}
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-dur">${p.days===0?'Lifetime access':p.days+' days access'}</div>
+      <div>${disc>0?'<div class="plan-orig">৳'+orig+'</div>':''}</div>
+      <div class="plan-price">৳${final}<span style="font-size:15px;color:var(--muted)">/plan</span>${disc>0?'<span class="disc-badge">'+disc+'% OFF</span>':''}</div>
+      <ul class="plan-feats">
+        <li>Unlimited account generation</li>
+        <li>Real Gmail + Password visible</li>
+        <li>Copy all data instantly</li>
+        <li>Priority server access</li>
+        <li>${p.days===0?'Never expires':'Valid for '+p.days+' days'}</li>
       </ul>
-      <button class="btn-buy" onclick="openPayment('${plan.name}',${finalPrice})">Buy Now →</button>
-    `;
-    container.appendChild(card);
+      <button class="btn-buy" onclick="openPay('${p.name}',${final})">Buy Now →</button>`;
+    $('planCards').appendChild(d);
   });
 }
+window.openPay=(name,price)=>{ $('payPlanLabel').textContent='Plan: '+name+' — ৳'+price; $('payModal').classList.add('show'); };
 
-window.openPayment = function(name, price){
-  document.getElementById('payModalPlan').textContent=`Plan: ${name} — ৳${price}`;
-  document.getElementById('paymentModal').classList.add('show');
-};
-
-// ===== SESSION RESTORE =====
-async function restoreSession(){
-  showLoading();
-  const saved = localStorage.getItem('pth_saved_key');
-  if(!saved){ hideLoading(); return; }
-  try {
-    const keyPath = saved.replace(/-/g,'_');
-    const snap = await get(ref(db,`keys/${keyPath}`));
-    if(!snap.exists()){ hideLoading(); return; }
+// ── Session Restore ──
+async function restore(){
+  showLoad();
+  const saved=localStorage.getItem('pth_saved_key');
+  if(!saved){ hideLoad(); return; }
+  try{
+    const kp=saved.replace(/-/g,'_');
+    const snap=await get(ref(db,'keys/'+kp));
+    if(!snap.exists()){ hideLoad(); return; }
     const kd=snap.val();
-    if(!kd.active){ hideLoading(); return; }
-    if(kd.expiry && new Date(kd.expiry)<new Date()){ hideLoading(); return; }
-    const usedBy=kd.usedBy||{};
-    if(!usedBy[deviceId]){ hideLoading(); return; }
-    currentKey=saved; currentKeyData=kd; isTrial=(kd.type==='trial');
-    if(isTrial){
-      document.getElementById('countInput').value=10;
-      document.getElementById('countInput').disabled=true;
-      document.getElementById('trialCountNote').style.display='block';
-    }
-    hideLoading();
-    showPage('setupPage');
-  } catch(e){ hideLoading(); }
+    if(!kd.active||(kd.expiry&&new Date(kd.expiry)<new Date())){ hideLoad(); return; }
+    if(!(kd.usedBy||{})[devId]){ hideLoad(); return; }
+    curKey=saved; curKD=kd; isTrial=kd.type==='trial';
+    if(isTrial){ $('cntInp').value=10; $('cntInp').disabled=true; $('trialNote').style.display='block'; }
+    hideLoad(); showPage('setupPage');
+  }catch{ hideLoad(); }
 }
 
-// ===== INIT =====
-loadPricing();
-restoreSession();
-
+loadPlans();
+restore();
 </script>
 </body>
 </html>
