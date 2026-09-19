@@ -4,23 +4,295 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PRO TOOLS HUB</title>
-
-<!-- Protection -->
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',function(e){
-  if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&e.keyCode===73)||(e.ctrlKey&&e.shiftKey&&e.keyCode===74)||(e.ctrlKey&&e.keyCode===85)||(e.ctrlKey&&e.keyCode===83)){e.preventDefault();return false;}
+  if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74))||(e.ctrlKey&&(e.keyCode===85||e.keyCode===83))){e.preventDefault();return false;}
 });
-setInterval(function(){
-  var w=window.outerWidth-window.innerWidth>160;
-  var h=window.outerHeight-window.innerHeight>160;
-  if(w||h){document.body.innerHTML='<div style="background:#000;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column"><h1 style="color:red;font-size:48px">⛔</h1><p style="color:red;font-size:18px;font-family:sans-serif">Access Denied</p></div>';}
-},500);
+setInterval(function(){if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160){document.body.innerHTML='<div style="background:#fff;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column"><p style="color:red;font-size:18px;font-family:sans-serif">Access Denied</p></div>';}},500);
 console.log=console.warn=console.error=function(){};
 </script>
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Roboto',sans-serif;background:#fff;overflow:hidden;height:100vh;}
+
+/* ── APP SHELL ── */
+#appShell{display:flex;flex-direction:column;height:100vh;background:#fff;}
+
+/* ── TOP APP BAR (PRO TOOLS HUB) ── */
+.app-topbar{
+  background:#3c4db1;
+  color:#fff;
+  padding:0 16px;
+  height:56px;
+  display:flex;align-items:center;
+  font-size:18px;font-weight:500;
+  letter-spacing:0.3px;
+  flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* ── STATUS BAR (Creating X/Y + STOP) ── */
+.status-bar{
+  background:#fff;
+  border-top:1px solid #e0e0e0;
+  padding:0 16px;
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  position:fixed;bottom:0;left:0;right:0;
+  z-index:100;
+  box-shadow:0 -1px 4px rgba(0,0,0,0.08);
+}
+.status-txt{font-size:14px;color:#333;font-family:'Roboto',sans-serif;}
+.btn-stop{
+  background:#ffebee;
+  color:#e53935;
+  border:none;border-radius:4px;
+  padding:8px 20px;
+  font-size:13px;font-weight:700;
+  letter-spacing:1px;
+  cursor:pointer;
+  font-family:'Roboto',sans-serif;
+}
+
+/* ── GOOGLE SCREEN ── */
+.g-screen{
+  flex:1;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  padding-bottom:52px;
+}
+
+/* ── GOOGLE HEADER (logo) ── */
+.g-header{
+  text-align:center;
+  padding:28px 0 8px;
+}
+.g-wordmark{
+  font-size:28px;font-weight:400;
+  letter-spacing:-0.5px;
+}
+.g-wordmark span:nth-child(1){color:#4285F4;}
+.g-wordmark span:nth-child(2){color:#EA4335;}
+.g-wordmark span:nth-child(3){color:#FBBC05;}
+.g-wordmark span:nth-child(4){color:#4285F4;}
+.g-wordmark span:nth-child(5){color:#34A853;}
+.g-wordmark span:nth-child(6){color:#EA4335;}
+
+/* ── SCREEN PANELS ── */
+.g-panel{
+  display:none;flex-direction:column;
+  flex:1;padding:0 24px;
+  overflow-y:auto;padding-bottom:80px;
+}
+.g-panel.active{display:flex;}
+
+.g-panel-title{
+  font-size:24px;font-weight:400;
+  color:#202124;
+  text-align:center;
+  margin:24px 0 6px;
+}
+.g-panel-sub{
+  font-size:14px;color:#5f6368;
+  text-align:center;
+  margin-bottom:28px;
+}
+
+/* ── MATERIAL TEXT FIELD ── */
+.mat-field{
+  position:relative;
+  margin-bottom:24px;
+}
+.mat-field-label{
+  position:absolute;
+  top:-8px;left:10px;
+  font-size:12px;
+  color:#1a73e8;
+  background:#fff;
+  padding:0 4px;
+  font-family:'Roboto',sans-serif;
+}
+.mat-field-input{
+  width:100%;
+  border:2px solid #dadce0;
+  border-radius:4px;
+  padding:14px 14px;
+  font-size:16px;
+  color:#202124;
+  font-family:'Roboto',monospace;
+  outline:none;
+  background:#fff;
+  min-height:52px;
+  transition:border-color 0.2s;
+}
+.mat-field-input.typing{border-color:#1a73e8;}
+.mat-field-input.filled{border-color:#dadce0;}
+
+/* Gmail field special */
+.gmail-field-wrap{
+  display:flex;align-items:center;
+  border:2px solid #1a73e8;
+  border-radius:4px;
+  overflow:hidden;
+  background:#fff;
+  min-height:52px;
+}
+.gmail-input-part{
+  flex:1;padding:14px 0 14px 14px;
+  font-size:16px;color:#202124;
+  font-family:'Roboto',monospace;
+  min-height:52px;
+}
+.gmail-suffix{
+  padding:14px 14px 14px 0;
+  font-size:16px;color:#80868b;
+  white-space:nowrap;
+  font-family:'Roboto',sans-serif;
+}
+.gmail-label-wrap{
+  position:relative;margin-bottom:24px;
+}
+.gmail-label-wrap .mat-field-label{
+  top:-8px;left:10px;
+}
+
+/* ── CURSOR ── */
+.cur{
+  display:inline-block;width:2px;height:18px;
+  background:#1a73e8;
+  animation:blink 0.7s infinite;
+  vertical-align:middle;margin-left:1px;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── DOB FIELDS (3 boxes) ── */
+.dob-row{display:flex;gap:10px;margin-bottom:20px;}
+.dob-box{
+  flex:1;border:1px solid #dadce0;border-radius:4px;
+  padding:14px 10px;text-align:center;
+  font-size:16px;color:#202124;
+  font-family:'Roboto',sans-serif;
+  background:#fff;min-height:52px;
+  display:flex;align-items:center;justify-content:center;
+}
+.dob-box.typing-dob{border-color:#1a73e8;border-width:2px;}
+
+/* ── GENDER DROPDOWN ── */
+.gender-select{
+  width:100%;border:1px solid #dadce0;border-radius:4px;
+  padding:14px;font-size:16px;color:#202124;
+  font-family:'Roboto',sans-serif;
+  background:#fff;min-height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.gender-select.filled{border-color:#dadce0;}
+
+/* ── PASSWORD FIELD ── */
+.pw-field-wrap{position:relative;margin-bottom:16px;}
+.show-pw-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;
+}
+.show-pw-cb{
+  width:18px;height:18px;border:2px solid #5f6368;
+  border-radius:2px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+
+/* ── NEXT BUTTON ── */
+.g-next-btn{
+  background:#1a73e8;color:#fff;
+  border:none;border-radius:4px;
+  padding:10px 24px;
+  font-size:14px;font-weight:500;
+  font-family:'Roboto',sans-serif;
+  letter-spacing:0.5px;
+  cursor:default;
+  align-self:flex-end;
+  margin-top:auto;
+  margin-bottom:8px;
+  opacity:0;
+  transition:opacity 0.4s;
+}
+.g-next-btn.show{opacity:1;}
+
+/* ── CHECKING PANEL ── */
+#checkPanel{
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  flex:1;padding:40px 24px;
+}
+#checkPanel.active{display:flex;}
+
+.check-icon{
+  font-size:56px;margin-bottom:16px;
+  color:#1a73e8;
+}
+.check-main-title{
+  font-size:20px;font-weight:400;
+  color:#202124;margin-bottom:8px;
+  text-align:center;
+}
+.check-main-sub{
+  font-size:14px;color:#5f6368;
+  margin-bottom:32px;text-align:center;
+}
+.check-spinner{
+  width:48px;height:48px;
+  border:4px solid #e8eaed;
+  border-top:4px solid #1a73e8;
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+  margin-bottom:28px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.check-steps-list{width:100%;max-width:300px;}
+.check-step{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid #f1f3f4;
+  font-size:14px;color:#9aa0a6;
+  font-family:'Roboto',sans-serif;
+  transition:color 0.3s;
+}
+.check-step:last-child{border:none;}
+.check-step.act{color:#1a73e8;font-weight:500;}
+.check-step.ok{color:#34A853;}
+.cs-icon{
+  width:22px;height:22px;border-radius:50%;
+  background:#e8eaed;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+  flex-shrink:0;transition:all 0.3s;
+  color:#fff;
+}
+.check-step.act .cs-icon{background:#1a73e8;}
+.check-step.ok .cs-icon{background:#34A853;}
+
+/* Success check */
+.success-circle{
+  width:72px;height:72px;
+  border-radius:50%;background:#e8f5e9;
+  border:3px solid #34A853;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;margin-bottom:16px;
+  animation:popIn 0.5s ease;
+}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* ── PRO TOOLS HUB PAGES (non-google) ── */
+#pthShell{
+  display:none;
+  flex-direction:column;
+  height:100vh;
+  background:#0a0a1a;
+}
+#pthShell.active{display:flex;}
+
 :root{
   --primary:#6c63ff;--secondary:#f72585;
   --dark:#0a0a1a;--darker:#050510;
@@ -30,878 +302,827 @@ console.log=console.warn=console.error=function(){};
   --border:#2a2a50;
   --g1:linear-gradient(135deg,#6c63ff,#f72585);
 }
-body{background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;}
-.page{display:none;min-height:100vh;flex-direction:column;}
-.page.active{display:flex;}
 
-/* LOADING */
+/* Loading */
 #loadingOverlay{position:fixed;inset:0;background:rgba(5,5,16,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;}
 #loadingOverlay.hidden{display:none;}
-.spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes modalIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes gradMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.spinner{width:48px;height:48px;border:4px solid #2a2a50;border-top-color:#6c63ff;border-radius:50%;animation:spin 0.8s linear infinite;}
 
-/* NOTICE */
-#noticeBanner{background:linear-gradient(90deg,#f72585,#6c63ff);color:#fff;padding:10px 16px;font-size:13px;text-align:center;display:none;}
+/* Notice */
+#noticeBanner{background:linear-gradient(90deg,#f72585,#6c63ff);color:#fff;padding:10px 16px;font-size:13px;text-align:center;display:none;flex-shrink:0;}
 #noticeBanner.show{display:block;}
 
-/* TOAST */
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--border);border-radius:30px;padding:12px 24px;font-size:14px;font-weight:600;z-index:8000;transition:transform 0.3s;white-space:nowrap;}
+/* Toast */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a35;border:1px solid #2a2a50;border-radius:30px;padding:12px 24px;font-size:14px;font-weight:600;color:#e0e0ff;z-index:8000;transition:transform 0.3s;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 
-/* HEADER */
-.app-header{background:var(--card);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
-.logo-wrap{display:flex;align-items:center;gap:10px;}
-.logo-icon{width:36px;height:36px;background:var(--g1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.logo-text{font-size:15px;font-weight:700;}
-.logo-sub{font-size:10px;color:var(--muted);}
+/* PTH Pages */
+.pth-page{display:none;flex:1;flex-direction:column;overflow-y:auto;}
+.pth-page.active{display:flex;}
+
+/* PTH Header */
+.pth-header{background:#12122a;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2a50;flex-shrink:0;}
+.pth-logo{display:flex;align-items:center;gap:10px;}
+.pth-logo-icon{width:36px;height:36px;background:var(--g1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.pth-logo-text{font-size:15px;font-weight:700;color:#e0e0ff;}
+.pth-logo-sub{font-size:10px;color:#7878a0;}
 .badge{background:var(--g1);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;}
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.show{display:flex;}
-.modal-box{background:var(--card);border-radius:24px;padding:30px 22px;width:100%;max-width:360px;text-align:center;border:1px solid var(--border);animation:modalIn 0.3s ease;}
-
-/* ══════════════════════════════
-   KEY PAGE
-══════════════════════════════ */
+/* Key Page */
 #keyPage{align-items:center;justify-content:center;padding:24px;background:var(--darker);position:relative;overflow:hidden;}
-.kbg1,.kbg2{position:absolute;border-radius:50%;opacity:0.06;}
-.kbg1{width:320px;height:320px;background:var(--primary);top:-120px;right:-100px;}
-.kbg2{width:220px;height:220px;background:var(--secondary);bottom:-60px;left:-60px;}
-.key-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px 22px;width:100%;max-width:380px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(108,99,255,0.18);}
-.key-icon-wrap{width:72px;height:72px;background:var(--g1);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 20px;box-shadow:0 10px 30px rgba(108,99,255,0.4);}
-.key-input{width:100%;background:var(--darker);border:2px solid var(--border);border-radius:14px;padding:16px;color:var(--text);font-size:20px;font-family:'Courier New',monospace;text-align:center;letter-spacing:4px;outline:none;transition:border-color 0.3s;margin:22px 0 14px;}
-.key-input:focus{border-color:var(--primary);}
-.key-input::placeholder{color:var(--muted);letter-spacing:2px;font-size:14px;}
-.btn-primary{width:100%;background:var(--g1);border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);transition:transform 0.15s;}
-.btn-primary:active{transform:scale(0.97);}
+.kbg{position:absolute;border-radius:50%;opacity:0.06;}
+.key-card{background:#12122a;border:1px solid #2a2a50;border-radius:24px;padding:32px 22px;width:100%;max-width:380px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(108,99,255,0.18);}
+.key-icon-w{width:72px;height:72px;background:var(--g1);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 20px;box-shadow:0 10px 30px rgba(108,99,255,0.4);}
+.key-input{width:100%;background:#050510;border:2px solid #2a2a50;border-radius:14px;padding:16px;color:#e0e0ff;font-size:20px;font-family:'Courier New',monospace;text-align:center;letter-spacing:4px;outline:none;transition:border-color 0.3s;margin:22px 0 14px;}
+.key-input:focus{border-color:#6c63ff;}
+.key-input::placeholder{color:#7878a0;letter-spacing:2px;font-size:14px;}
+.btn-p{width:100%;background:var(--g1);border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);}
 .btn-tg{width:100%;margin-top:12px;background:transparent;border:2px solid #229ED9;border-radius:14px;padding:14px;color:#229ED9;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 
-/* ══════════════════════════════
-   SETUP PAGE
-══════════════════════════════ */
-#setupPage{background:var(--darker);}
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.modal-ov.show{display:flex;}
+.modal-box{background:#12122a;border-radius:24px;padding:30px 22px;width:100%;max-width:360px;text-align:center;border:1px solid #2a2a50;animation:mIn 0.3s ease;}
+@keyframes mIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Setup */
+#setupPage{background:#050510;}
 .setup-body{flex:1;padding:20px;overflow-y:auto;}
-.sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;}
+.sec-t{font-size:11px;font-weight:700;color:#7878a0;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;}
 .region-list{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;}
-.region-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;}
-.region-card.sel{border-color:var(--primary);background:rgba(108,99,255,0.1);}
-.region-flag{font-size:26px;}
-.region-name{font-size:14px;font-weight:600;}
-.region-type{font-size:11px;color:var(--muted);}
-.region-chk{width:22px;height:22px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;flex-shrink:0;}
-.region-card.sel .region-chk{background:var(--primary);border-color:var(--primary);color:#fff;}
-.count-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:24px;}
-.count-row{display:flex;align-items:center;gap:14px;margin-top:12px;}
-.cnt-btn{width:46px;height:46px;background:var(--card2);border:2px solid var(--border);border-radius:12px;color:var(--text);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
-.cnt-inp{flex:1;text-align:center;background:var(--darker);border:2px solid var(--border);border-radius:12px;padding:10px;color:var(--text);font-size:22px;font-weight:700;outline:none;}
-.btn-start-auto{width:100%;background:var(--g1);border:none;border-radius:16px;padding:18px;color:#fff;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;}
-.btn-logout{width:100%;background:transparent;border:2px solid var(--border);border-radius:16px;padding:14px;color:var(--muted);font-size:14px;cursor:pointer;}
+.rc{background:#12122a;border:2px solid #2a2a50;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;}
+.rc.sel{border-color:#6c63ff;background:rgba(108,99,255,0.1);}
+.rc-chk{width:22px;height:22px;border:2px solid #2a2a50;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.rc.sel .rc-chk{background:#6c63ff;border-color:#6c63ff;color:#fff;}
+.cnt-box{background:#12122a;border-radius:14px;padding:16px;margin-bottom:24px;}
+.cnt-row{display:flex;align-items:center;gap:14px;margin-top:12px;}
+.cnt-btn{width:46px;height:46px;background:#1a1a35;border:2px solid #2a2a50;border-radius:12px;color:#e0e0ff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.cnt-inp{flex:1;text-align:center;background:#050510;border:2px solid #2a2a50;border-radius:12px;padding:10px;color:#e0e0ff;font-size:22px;font-weight:700;outline:none;}
 
-/* ══════════════════════════════
-   AUTOMATION PAGE
-══════════════════════════════ */
-#autoPage{background:#000;flex-direction:column;}
-.auto-topbar{background:#0f0f1e;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a3a;position:sticky;top:0;z-index:200;}
-.auto-status-label{font-size:10px;color:#7878a0;text-transform:uppercase;letter-spacing:1px;}
-.auto-status-val{font-size:16px;font-weight:700;color:#00e676;}
-.btn-stop{background:#f72585;border:none;border-radius:10px;padding:10px 22px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
-.auto-pbar{height:4px;background:#1a1a3a;}
-.auto-pfill{height:100%;background:var(--g1);width:0%;transition:width 0.5s;}
-
-/* Google Screen */
-.g-screen{flex:1;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative;}
-.g-browser-bar{background:#f8f9fa;padding:10px 12px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:8px;}
-.g-nav-btn{width:28px;height:28px;border-radius:50%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5f6368;}
-.g-url-bar{flex:1;background:#fff;border:1px solid #ddd;border-radius:20px;padding:7px 14px;font-size:12px;color:#202124;display:flex;align-items:center;gap:6px;overflow:hidden;}
-.g-logo-mini{font-size:20px;font-weight:900;background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-
-/* Step dots */
-.g-dots{background:#fff;padding:10px 20px 6px;display:flex;gap:8px;}
-.g-dot{flex:1;height:4px;border-radius:4px;background:#e0e0e0;transition:all 0.4s;}
-.g-dot.active{background:#1a73e8;}
-.g-dot.done{background:#34A853;}
-
-/* Form body */
-.g-form-body{flex:1;padding:22px 20px 16px;background:#fff;overflow-y:auto;display:flex;flex-direction:column;}
-.g-title{font-size:23px;font-weight:700;color:#202124;margin-bottom:6px;}
-.g-sub{font-size:14px;color:#5f6368;margin-bottom:26px;}
-
-/* Fields */
-.g-field{margin-bottom:18px;animation:fadeUp 0.4s ease;}
-.g-label{font-size:12px;color:#5f6368;margin-bottom:6px;font-weight:500;}
-.g-input{border:2px solid #dadce0;border-radius:8px;padding:15px 14px;font-size:15px;color:#202124;font-family:'Courier New',monospace;min-height:52px;background:#fff;transition:border-color 0.3s,box-shadow 0.3s;word-break:break-all;line-height:1.4;}
-.g-input.act{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.15);}
-.g-input.done{border-color:#34A853;}
-.g-input.pass-field{letter-spacing:3px;font-size:18px;}
-
-.g-cursor{display:inline-block;width:2px;height:17px;background:#1a73e8;animation:blink 0.7s infinite;vertical-align:middle;margin-left:1px;}
-
-/* Gender select */
-.g-gender-sel{border:2px solid #34A853;border-radius:8px;padding:14px;font-size:15px;color:#202124;min-height:52px;background:#fff;display:flex;align-items:center;gap:10px;}
-
-/* Available note */
-.g-avail{font-size:11px;color:#34A853;margin-top:5px;display:none;}
-
-/* Next button fake */
-.g-next-btn{background:#1a73e8;border-radius:8px;padding:14px;color:#fff;font-size:15px;font-weight:600;text-align:center;margin-top:auto;padding-top:14px;opacity:0.35;transition:opacity 0.5s;border:none;width:100%;cursor:default;}
-.g-next-btn.on{opacity:1;}
-
-/* Checking Overlay */
-.checking-ov{position:absolute;inset:0;background:rgba(255,255,255,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.5s;}
-.checking-ov.show{opacity:1;pointer-events:all;}
-.g-spinner{width:58px;height:58px;border:5px solid #e8eaed;border-top:5px solid #4285F4;border-right:5px solid #EA4335;border-bottom:5px solid #FBBC05;border-left:5px solid #34A853;border-radius:50%;animation:spin 1s linear infinite;}
-.check-title{font-size:17px;font-weight:700;color:#202124;text-align:center;}
-.check-sub{font-size:13px;color:#5f6368;}
-.check-list{width:270px;background:#f8f9fa;border-radius:12px;padding:14px 16px;}
-.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:13px;color:#9aa0a6;transition:color 0.3s;}
-.check-item:last-child{border-bottom:none;}
-.check-item.act{color:#1a73e8;font-weight:600;}
-.check-item.ok{color:#34A853;}
-.check-dot{width:20px;height:20px;border-radius:50%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.3s;}
-.check-item.act .check-dot{background:#1a73e8;}
-.check-item.ok .check-dot{background:#34A853;color:#fff;}
-
-/* ══════════════════════════════
-   SUCCESS PAGE
-══════════════════════════════ */
-#successPage{background:var(--darker);}
-.success-body{flex:1;padding:20px;overflow-y:auto;}
-.success-hdr{text-align:center;padding:18px 0 24px;}
-.success-check{width:80px;height:80px;background:rgba(0,230,118,0.12);border:3px solid var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 14px;animation:popIn 0.5s ease;}
-.success-title{font-size:22px;font-weight:800;}
-.success-sub{font-size:14px;color:var(--muted);margin-top:4px;}
-.acc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
-.acc-num{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+/* Success Page */
+#successPage{background:#050510;}
+.succ-body{flex:1;padding:20px;overflow-y:auto;}
+.succ-hdr{text-align:center;padding:18px 0 22px;}
+.succ-chk{width:80px;height:80px;background:rgba(0,230,118,0.12);border:3px solid #00e676;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 14px;animation:popIn 0.5s ease;}
+.acc-card{background:#12122a;border:1px solid #2a2a50;border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+.acc-num{font-size:10px;font-weight:700;color:#6c63ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
 .acc-row{margin-bottom:10px;}
-.acc-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
-.acc-val{font-size:14px;font-weight:600;font-family:'Courier New',monospace;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.acc-label{font-size:11px;color:#7878a0;margin-bottom:4px;}
+.acc-val{font-size:14px;font-weight:600;font-family:'Courier New',monospace;color:#e0e0ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .blur{filter:blur(6px);user-select:none;pointer-events:none;}
-.copy-sm{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:4px 10px;color:var(--text);font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-.reveal-btn{background:transparent;border:none;color:var(--primary);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;}
+.copy-sm{background:#1a1a35;border:1px solid #2a2a50;border-radius:8px;padding:4px 10px;color:#e0e0ff;font-size:11px;cursor:pointer;}
+.rev-btn{background:transparent;border:none;color:#6c63ff;font-size:12px;cursor:pointer;text-decoration:underline;padding:0;}
 .lock-ov{position:absolute;inset:0;background:rgba(10,10,26,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border-radius:16px;}
-.success-actions{padding:14px 20px 28px;display:flex;flex-direction:column;gap:10px;}
-.btn-reveal-all{width:100%;background:rgba(108,99,255,0.12);border:2px solid var(--primary);border-radius:14px;padding:14px;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer;}
+.succ-actions{padding:14px 20px 28px;display:flex;flex-direction:column;gap:10px;}
+.btn-rev-all{width:100%;background:rgba(108,99,255,0.12);border:2px solid #6c63ff;border-radius:14px;padding:14px;color:#6c63ff;font-size:14px;font-weight:600;cursor:pointer;}
 .btn-copy-all{width:100%;background:var(--g1);border:none;border-radius:14px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
-.btn-gen-more{width:100%;background:transparent;border:2px solid var(--border);border-radius:14px;padding:14px;color:var(--text);font-size:14px;cursor:pointer;}
+.btn-gen-more{width:100%;background:transparent;border:2px solid #2a2a50;border-radius:14px;padding:14px;color:#e0e0ff;font-size:14px;cursor:pointer;}
 
-/* ══════════════════════════════
-   PRICING PAGE
-══════════════════════════════ */
-#pricingPage{background:var(--darker);}
+/* Pricing */
+#pricingPage{background:#050510;}
 .pricing-body{flex:1;padding:20px;overflow-y:auto;}
-.pricing-hdr{text-align:center;padding:16px 0 24px;}
-.plan-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
-.plan-card.pop{border-color:var(--primary);background:rgba(108,99,255,0.07);}
+.plan-card{background:#12122a;border:2px solid #2a2a50;border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.plan-card.pop{border-color:#6c63ff;background:rgba(108,99,255,0.07);}
 .pop-tag{position:absolute;top:0;right:18px;background:var(--g1);color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:0 0 10px 10px;}
-.plan-name{font-size:18px;font-weight:800;margin-bottom:4px;}
-.plan-dur{font-size:12px;color:var(--muted);margin-bottom:14px;}
-.plan-price{font-size:32px;font-weight:900;}
-.plan-orig{font-size:14px;color:var(--muted);text-decoration:line-through;}
-.disc-badge{display:inline-block;background:var(--success);color:#000;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:8px;}
 .plan-feats{list-style:none;margin:14px 0;}
-.plan-feats li{font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.plan-feats li{font-size:13px;color:#7878a0;padding:6px 0;border-bottom:1px solid #2a2a50;display:flex;align-items:center;gap:8px;}
 .plan-feats li:last-child{border:none;}
-.plan-feats li::before{content:"✓";color:var(--success);font-weight:700;}
+.plan-feats li::before{content:"✓";color:#00e676;font-weight:700;}
 .btn-buy{width:100%;background:var(--g1);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
 
-/* Payment Modal */
-.pay-box{background:var(--card);border-radius:24px;padding:26px 20px;width:100%;max-width:360px;border:1px solid var(--border);animation:modalIn 0.3s;}
-.pay-method{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+/* Pay modal */
+.pay-box{background:#12122a;border-radius:24px;padding:26px 20px;width:100%;max-width:360px;border:1px solid #2a2a50;animation:mIn 0.3s;}
+.pay-method{background:#1a1a35;border:1px solid #2a2a50;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
 .pay-logo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;}
-.pay-num{font-size:17px;font-weight:800;font-family:monospace;}
-.pay-copy{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:12px;cursor:pointer;}
-.pay-note{background:rgba(255,214,0,0.08);border:1px solid rgba(255,214,0,0.25);border-radius:12px;padding:12px;font-size:12px;color:var(--warning);text-align:center;margin-bottom:14px;}
+.pay-num{font-size:17px;font-weight:800;font-family:monospace;color:#e0e0ff;}
+.pay-copy{background:#12122a;border:1px solid #2a2a50;border-radius:8px;padding:6px 12px;color:#e0e0ff;font-size:12px;cursor:pointer;}
+.pay-note{background:rgba(255,214,0,0.08);border:1px solid rgba(255,214,0,0.25);border-radius:12px;padding:12px;font-size:12px;color:#ffd600;text-align:center;margin-bottom:14px;}
 
-/* Premium popup */
-#premiumPopup .modal-box{border:2px solid var(--warning);}
-.btn-buy-prem{width:100%;background:var(--g1);border:none;border-radius:14px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
-.btn-tg-prem{width:100%;background:transparent;border:2px solid #229ED9;border-radius:14px;padding:12px;color:#229ED9;font-size:13px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn-close-pop{width:100%;background:transparent;border:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer;}
-.back-btn{background:transparent;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:2px 6px;}
+/* back btn */
+.back-btn{background:transparent;border:none;color:#e0e0ff;font-size:24px;cursor:pointer;padding:2px 6px;}
 </style>
 </head>
 <body>
 
-<!-- Loading -->
+<!-- ═══════════════════════════════════
+     LOADING OVERLAY
+═══════════════════════════════════ -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <p style="color:var(--muted);font-size:14px">Connecting...</p>
+  <p style="color:#7878a0;font-size:14px;font-family:'Roboto',sans-serif">Connecting...</p>
 </div>
-
-<!-- Notice -->
-<div id="noticeBanner"></div>
 
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- ══════════ KEY PAGE ══════════ -->
-<div class="page active" id="keyPage">
-  <div class="kbg1"></div><div class="kbg2"></div>
-  <div class="key-card">
-    <div class="key-icon-wrap">🛡️</div>
-    <div style="text-align:center">
-      <h2 style="font-size:22px;font-weight:800">PRO TOOLS HUB</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Enter your license key</p>
-      <span class="badge" style="display:inline-block;margin-top:8px">👑 ULTIMATE 2026</span>
-    </div>
-    <input class="key-input" id="keyInput" maxlength="14" placeholder="XXXX-XXXX-XXXX" oninput="fmtKey(this)">
-    <button class="btn-primary" onclick="validateKey()">🔓 Unlock Access</button>
-    <button class="btn-tg" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Get Key via Telegram</button>
-  </div>
-</div>
+<!-- ═══════════════════════════════════
+     GOOGLE AUTOMATION SHELL
+     (shown during automation)
+═══════════════════════════════════ -->
+<div id="appShell">
 
-<!-- Unlock Modal -->
-<div class="modal-overlay" id="unlockModal">
-  <div class="modal-box">
-    <div style="font-size:56px;margin-bottom:14px" id="uIcon">💎</div>
-    <div style="font-size:21px;font-weight:800;margin-bottom:6px" id="uTitle">Premium Unlocked!</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:18px" id="uSub">Full access granted</div>
-    <div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.25);border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:20px" id="uInfo">License active</div>
-    <button class="btn-primary" onclick="startApp()">🚀 Let's Start</button>
-  </div>
-</div>
-
-<!-- ══════════ SETUP PAGE ══════════ -->
-<div class="page" id="setupPage">
-  <div class="app-header">
-    <div class="logo-wrap">
-      <div class="logo-icon">⚡</div>
-      <div><div class="logo-text">Gmail Creator AI</div><div class="logo-sub">PRO TOOLS HUB</div></div>
-    </div>
-    <span class="badge">👑 ULTIMATE</span>
-  </div>
-  <div class="setup-body">
-    <div class="sec-title">🌐 Select Server Region</div>
-    <div class="region-list" id="regionList">
-      <div class="region-card sel" onclick="selRegion(this)">
-        <div class="region-flag">🇺🇸</div>
-        <div style="flex:1"><div class="region-name">United States</div><div class="region-type">⚡ Premium Server</div></div>
-        <div class="region-chk">✓</div>
-      </div>
-      <div class="region-card" onclick="selRegion(this)">
-        <div class="region-flag">🇧🇩</div>
-        <div style="flex:1"><div class="region-name">Bangladesh</div><div class="region-type">🔹 Standard Server</div></div>
-        <div class="region-chk"></div>
-      </div>
-      <div class="region-card" onclick="selRegion(this)">
-        <div class="region-flag">🇮🇳</div>
-        <div style="flex:1"><div class="region-name">India</div><div class="region-type">🔹 Standard Server</div></div>
-        <div class="region-chk"></div>
-      </div>
-      <div class="region-card" onclick="selRegion(this)">
-        <div class="region-flag">🇬🇧</div>
-        <div style="flex:1"><div class="region-name">United Kingdom</div><div class="region-type">⚡ Premium Server</div></div>
-        <div class="region-chk"></div>
-      </div>
-      <div class="region-card" onclick="selRegion(this)">
-        <div class="region-flag">🇨🇦</div>
-        <div style="flex:1"><div class="region-name">Canada</div><div class="region-type">⚡ Premium Server</div></div>
-        <div class="region-chk"></div>
-      </div>
-    </div>
-
-    <div class="sec-title">📊 Number of Accounts</div>
-    <div class="count-box">
-      <div style="font-size:14px;font-weight:600">How many Gmail accounts?</div>
-      <div class="count-row">
-        <button class="cnt-btn" onclick="chgCount(-1)">−</button>
-        <input class="cnt-inp" id="cntInp" value="1" type="number" min="1" max="999" oninput="clampCnt()">
-        <button class="cnt-btn" onclick="chgCount(1)">+</button>
-      </div>
-      <div id="trialNote" style="display:none;font-size:11px;color:var(--warning);margin-top:10px">⚠️ Trial limited to 10 accounts</div>
-    </div>
-
-    <button class="btn-start-auto" onclick="startAuto()">⚡ Start Automation</button>
-    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
-  </div>
-</div>
-
-<!-- ══════════ AUTOMATION PAGE ══════════ -->
-<div class="page" id="autoPage">
-
-  <!-- Top bar -->
-  <div class="auto-topbar">
-    <div>
-      <div class="auto-status-label">STATUS</div>
-      <div class="auto-status-val" id="autoStat">Initializing...</div>
-    </div>
-    <button class="btn-stop" onclick="stopAuto()">⏹ STOP</button>
-  </div>
-  <div class="auto-pbar"><div class="auto-pfill" id="autoPfill"></div></div>
+  <!-- PRO TOOLS HUB top bar -->
+  <div class="app-topbar">PRO TOOLS HUB</div>
 
   <!-- Google Screen -->
   <div class="g-screen" id="gScreen">
 
-    <!-- Browser bar -->
-    <div class="g-browser-bar">
-      <div style="display:flex;gap:4px">
-        <div class="g-nav-btn">←</div>
-        <div class="g-nav-btn" style="color:#bbb">→</div>
-      </div>
-      <div class="g-url-bar">
-        <span style="color:#34A853;font-size:13px">🔒</span>
-        <span id="gUrl" style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;color:#555">accounts.google.com/signup</span>
-      </div>
-      <div class="g-logo-mini">G</div>
-    </div>
-
-    <!-- Step dots -->
-    <div class="g-dots">
-      <div class="g-dot active" id="gd0"></div>
-      <div class="g-dot" id="gd1"></div>
-      <div class="g-dot" id="gd2"></div>
-      <div class="g-dot" id="gd3"></div>
-    </div>
-
-    <!-- Form -->
-    <div class="g-form-body" id="gForm">
-      <div class="g-title" id="gTitle">Create your Google Account</div>
-      <div class="g-sub" id="gSub">Enter your name to get started</div>
-
-      <!-- First name -->
-      <div class="g-field" id="gf_fn">
-        <div class="g-label">First name</div>
-        <div class="g-input act" id="gi_fn"></div>
-      </div>
-      <!-- Last name -->
-      <div class="g-field" id="gf_ln" style="display:none">
-        <div class="g-label">Last name</div>
-        <div class="g-input" id="gi_ln"></div>
-      </div>
-      <!-- DOB -->
-      <div class="g-field" id="gf_dob" style="display:none">
-        <div class="g-label">Date of birth</div>
-        <div class="g-input" id="gi_dob"></div>
-      </div>
-      <!-- Gender -->
-      <div class="g-field" id="gf_gen" style="display:none">
-        <div class="g-label">Gender</div>
-        <div class="g-gender-sel">
-          <span style="color:#34A853;font-size:16px">✓</span>
-          <span id="gi_gen_val" style="font-size:15px;color:#202124"></span>
+    <!-- ── PANEL 0: Name ── -->
+    <div class="g-panel active" id="panel0">
+      <div class="g-header">
+        <div class="g-wordmark">
+          <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
         </div>
       </div>
-      <!-- Email -->
-      <div class="g-field" id="gf_em" style="display:none">
-        <div class="g-label">Gmail address</div>
-        <div class="g-input" id="gi_em"></div>
-        <div class="g-avail" id="emAvail">✓ Username available</div>
+      <div class="g-panel-title">Create a Google Account</div>
+      <div class="g-panel-sub">Enter your name</div>
+
+      <div class="mat-field">
+        <div class="mat-field-label">First name</div>
+        <div class="mat-field-input typing" id="inp_fn"></div>
       </div>
-      <!-- Password -->
-      <div class="g-field" id="gf_pw" style="display:none">
-        <div class="g-label">Password</div>
-        <div class="g-input pass-field" id="gi_pw"></div>
-        <div style="font-size:11px;color:#9aa0a6;margin-top:5px">Use 8+ characters with letters, numbers & symbols</div>
-      </div>
-      <!-- Confirm pass -->
-      <div class="g-field" id="gf_cp" style="display:none">
-        <div class="g-label">Confirm password</div>
-        <div class="g-input pass-field" id="gi_cp"></div>
+      <div class="mat-field" id="ln-wrap" style="opacity:0;transition:opacity 0.4s">
+        <div class="mat-field-label">Last name</div>
+        <div class="mat-field-input" id="inp_ln"></div>
       </div>
 
-      <div style="flex:1"></div>
-      <button class="g-next-btn" id="gNextBtn">Next</button>
+      <button class="g-next-btn" id="next0">Next</button>
     </div>
 
-    <!-- Checking Overlay -->
-    <div class="checking-ov" id="checkOv">
-      <div class="g-spinner"></div>
-      <div>
-        <div class="check-title" id="checkTitle">Verifying your information</div>
-        <div class="check-sub" id="checkSub" style="text-align:center;margin-top:4px">Please wait...</div>
+    <!-- ── PANEL 1: Basic Info ── -->
+    <div class="g-panel" id="panel1">
+      <div class="g-header">
+        <div class="g-wordmark">
+          <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+        </div>
       </div>
-      <div class="check-list">
-        <div class="check-item" id="ci0"><div class="check-dot" id="cd0"></div>Checking username availability</div>
-        <div class="check-item" id="ci1"><div class="check-dot" id="cd1"></div>Validating personal info</div>
-        <div class="check-item" id="ci2"><div class="check-dot" id="cd2"></div>Setting up account security</div>
-        <div class="check-item" id="ci3"><div class="check-dot" id="cd3"></div>Creating your Google Account</div>
+      <div class="g-panel-title">Basic information</div>
+      <div class="g-panel-sub">Enter your birthday and gender</div>
+
+      <!-- DOB 3 boxes -->
+      <div class="dob-row">
+        <div class="dob-box" id="dob_m">Month</div>
+        <div class="dob-box" id="dob_d">Day</div>
+        <div class="dob-box" id="dob_y">Year</div>
+      </div>
+
+      <!-- Gender -->
+      <div class="gender-select" id="gender_box">
+        <span id="gender_val" style="color:#80868b">Gender</span>
+        <span style="color:#5f6368;font-size:12px">▼</span>
+      </div>
+
+      <button class="g-next-btn" id="next1">Next</button>
+    </div>
+
+    <!-- ── PANEL 2: Gmail Address ── -->
+    <div class="g-panel" id="panel2">
+      <div class="g-header">
+        <div class="g-wordmark">
+          <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+        </div>
+      </div>
+      <div class="g-panel-title">How you'll sign in</div>
+      <div class="g-panel-sub">Create a Gmail address</div>
+
+      <div class="gmail-label-wrap">
+        <div class="mat-field-label">Username</div>
+        <div class="gmail-field-wrap">
+          <div class="gmail-input-part" id="inp_em"></div>
+          <div class="gmail-suffix">@gmail.com</div>
+        </div>
+      </div>
+
+      <div id="em_avail" style="display:none;font-size:12px;color:#34A853;margin-top:-14px;margin-bottom:16px">
+        ✓ You can use this address
+      </div>
+
+      <button class="g-next-btn" id="next2">Next</button>
+    </div>
+
+    <!-- ── PANEL 3: Password ── -->
+    <div class="g-panel" id="panel3">
+      <div class="g-header">
+        <div class="g-wordmark">
+          <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+        </div>
+      </div>
+      <div class="g-panel-title">Create a strong password</div>
+      <div class="g-panel-sub" style="margin-bottom:28px"></div>
+
+      <div class="pw-field-wrap">
+        <div class="mat-field">
+          <div class="mat-field-label">Password</div>
+          <div class="mat-field-input typing" id="inp_pw" style="letter-spacing:3px;font-size:18px"></div>
+        </div>
+      </div>
+
+      <div class="show-pw-row">
+        <div class="show-pw-cb" id="showPwCb"></div>
+        <span style="font-size:14px;color:#202124;font-family:'Roboto',sans-serif">Show password</span>
+      </div>
+
+      <button class="g-next-btn" id="next3">Next</button>
+    </div>
+
+    <!-- ── PANEL 4: Checking ── -->
+    <div id="checkPanel">
+      <div class="check-spinner"></div>
+      <div class="check-main-title" id="checkMainTitle">Verifying your information</div>
+      <div class="check-main-sub" id="checkMainSub">Please wait a moment...</div>
+      <div class="check-steps-list">
+        <div class="check-step" id="cs0">
+          <div class="cs-icon" id="csi0"></div>
+          Checking username availability
+        </div>
+        <div class="check-step" id="cs1">
+          <div class="cs-icon" id="csi1"></div>
+          Validating personal information
+        </div>
+        <div class="check-step" id="cs2">
+          <div class="cs-icon" id="csi2"></div>
+          Setting up account security
+        </div>
+        <div class="check-step" id="cs3">
+          <div class="cs-icon" id="csi3"></div>
+          Creating your Google Account
+        </div>
       </div>
     </div>
 
   </div>
+
+  <!-- Status bar fixed bottom -->
+  <div class="status-bar">
+    <span class="status-txt" id="statTxt">Creating: 0 / 0</span>
+    <button class="btn-stop" onclick="stopAuto()">STOP</button>
+  </div>
+
 </div>
 
-<!-- ══════════ SUCCESS PAGE ══════════ -->
-<div class="page" id="successPage">
-  <div class="app-header">
-    <button class="back-btn" onclick="showPage('setupPage')">←</button>
-    <div class="logo-text">Generated Accounts</div>
-    <span class="badge">👑</span>
-  </div>
-  <div class="success-body">
-    <div class="success-hdr">
-      <div class="success-check">✓</div>
-      <div class="success-title" id="succTitle">Accounts Ready!</div>
-      <div class="success-sub" id="succSub">Gmail accounts generated</div>
+<!-- ═══════════════════════════════════
+     PRO TOOLS HUB SHELL
+═══════════════════════════════════ -->
+<div id="pthShell" class="active">
+  <div id="noticeBanner"></div>
+
+  <!-- KEY PAGE -->
+  <div class="pth-page active" id="keyPage">
+    <div style="position:absolute;width:320px;height:320px;background:#6c63ff;border-radius:50%;opacity:0.06;top:-120px;right:-100px"></div>
+    <div style="position:absolute;width:220px;height:220px;background:#f72585;border-radius:50%;opacity:0.06;bottom:-60px;left:-60px"></div>
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:24px;">
+    <div class="key-card">
+      <div class="key-icon-w">🛡️</div>
+      <div style="text-align:center">
+        <h2 style="font-size:22px;font-weight:800;color:#e0e0ff">PRO TOOLS HUB</h2>
+        <p style="color:#7878a0;font-size:13px;margin-top:4px">Enter your license key</p>
+        <span class="badge" style="display:inline-block;margin-top:8px">👑 ULTIMATE 2026</span>
+      </div>
+      <input class="key-input" id="keyInput" maxlength="14" placeholder="XXXX-XXXX-XXXX" oninput="fmtKey(this)">
+      <button class="btn-p" onclick="validateKey()">🔓 Unlock Access</button>
+      <button class="btn-tg" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Get Key via Telegram</button>
     </div>
-    <div id="accCards"></div>
-  </div>
-  <div class="success-actions">
-    <button class="btn-reveal-all" id="btnRevAll" onclick="revealAll()">👁 Reveal All Passwords</button>
-    <button class="btn-copy-all" id="btnCopyAll" onclick="copyAll()">📋 COPY ALL DATA</button>
-    <button class="btn-gen-more" onclick="showPage('setupPage')">🔄 Generate More</button>
-  </div>
-</div>
-
-<!-- ══════════ PRICING PAGE ══════════ -->
-<div class="page" id="pricingPage">
-  <div class="app-header">
-    <button class="back-btn" onclick="showPage('successPage')">←</button>
-    <div class="logo-text">Get Premium</div>
-    <span></span>
-  </div>
-  <div class="pricing-body">
-    <div class="pricing-hdr">
-      <h2 style="font-size:24px;font-weight:800">💎 Upgrade to Premium</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:6px">See real Gmail + Password instantly</p>
     </div>
-    <div id="planCards"></div>
   </div>
-</div>
 
-<!-- Payment Modal -->
-<div class="modal-overlay" id="payModal">
-  <div class="pay-box">
-    <div style="font-size:18px;font-weight:800;margin-bottom:4px">💳 Complete Payment</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="payPlanLabel">Plan: 30 Days — ৳3300</div>
-    <div class="pay-method">
-      <div class="pay-logo" style="background:#E2136E">bK</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:700">bKash</div><div class="pay-num">01313267554</div></div>
-      <button class="pay-copy" onclick="cp('01313267554')">Copy</button>
+  <!-- UNLOCK MODAL -->
+  <div class="modal-ov" id="unlockModal">
+    <div class="modal-box">
+      <div style="font-size:56px;margin-bottom:14px" id="uIcon">💎</div>
+      <div style="font-size:21px;font-weight:800;margin-bottom:6px;color:#e0e0ff" id="uTitle">Premium Unlocked!</div>
+      <div style="font-size:13px;color:#7878a0;margin-bottom:18px" id="uSub">Full access granted</div>
+      <div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.25);border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:20px;color:#e0e0ff" id="uInfo">License active</div>
+      <button class="btn-p" onclick="startApp()">🚀 Let's Start</button>
     </div>
-    <div class="pay-method">
-      <div class="pay-logo" style="background:#F05A28">Ng</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:700">Nagad</div><div class="pay-num">01313267551</div></div>
-      <button class="pay-copy" onclick="cp('01313267551')">Copy</button>
+  </div>
+
+  <!-- SETUP PAGE -->
+  <div class="pth-page" id="setupPage">
+    <div class="pth-header">
+      <div class="pth-logo">
+        <div class="pth-logo-icon">⚡</div>
+        <div><div class="pth-logo-text">Gmail Creator AI</div><div class="pth-logo-sub">PRO TOOLS HUB</div></div>
+      </div>
+      <span class="badge">👑 ULTIMATE</span>
     </div>
-    <div class="pay-note">📸 Send payment screenshot to Telegram after paying</div>
-    <button style="width:100%;background:#229ED9;border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Send Screenshot → @tarakislam1</button>
-    <button style="width:100%;background:transparent;border:2px solid var(--border);border-radius:12px;padding:12px;color:var(--muted);font-size:14px;cursor:pointer" onclick="closeM('payModal')">✕ Close</button>
+    <div class="setup-body">
+      <div class="sec-t">🌐 Select Server Region</div>
+      <div class="region-list" id="regionList">
+        <div class="rc sel" onclick="selR(this)">
+          <span style="font-size:26px">🇺🇸</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#e0e0ff">United States</div><div style="font-size:11px;color:#7878a0">⚡ Premium Server</div></div>
+          <div class="rc-chk">✓</div>
+        </div>
+        <div class="rc" onclick="selR(this)">
+          <span style="font-size:26px">🇧🇩</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#e0e0ff">Bangladesh</div><div style="font-size:11px;color:#7878a0">🔹 Standard Server</div></div>
+          <div class="rc-chk"></div>
+        </div>
+        <div class="rc" onclick="selR(this)">
+          <span style="font-size:26px">🇮🇳</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#e0e0ff">India</div><div style="font-size:11px;color:#7878a0">🔹 Standard Server</div></div>
+          <div class="rc-chk"></div>
+        </div>
+        <div class="rc" onclick="selR(this)">
+          <span style="font-size:26px">🇬🇧</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#e0e0ff">United Kingdom</div><div style="font-size:11px;color:#7878a0">⚡ Premium Server</div></div>
+          <div class="rc-chk"></div>
+        </div>
+        <div class="rc" onclick="selR(this)">
+          <span style="font-size:26px">🇨🇦</span>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#e0e0ff">Canada</div><div style="font-size:11px;color:#7878a0">⚡ Premium Server</div></div>
+          <div class="rc-chk"></div>
+        </div>
+      </div>
+      <div class="sec-t">📊 Number of Accounts</div>
+      <div class="cnt-box">
+        <div style="font-size:14px;font-weight:600;color:#e0e0ff">How many Gmail accounts?</div>
+        <div class="cnt-row">
+          <button class="cnt-btn" onclick="chgC(-1)">−</button>
+          <input class="cnt-inp" id="cntInp" value="1" type="number" min="1" max="999" oninput="clampC()">
+          <button class="cnt-btn" onclick="chgC(1)">+</button>
+        </div>
+        <div id="trialNote" style="display:none;font-size:11px;color:#ffd600;margin-top:10px">⚠️ Trial limited to 10 accounts</div>
+      </div>
+      <button style="width:100%;background:var(--g1);border:none;border-radius:16px;padding:18px;color:#fff;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(108,99,255,0.4);margin-bottom:12px" onclick="startAuto()">⚡ Start Automation</button>
+      <button style="width:100%;background:transparent;border:2px solid #2a2a50;border-radius:16px;padding:14px;color:#7878a0;font-size:14px;cursor:pointer" onclick="logout()">🚪 Logout</button>
+    </div>
   </div>
+
+  <!-- SUCCESS PAGE -->
+  <div class="pth-page" id="successPage">
+    <div class="pth-header">
+      <button class="back-btn" onclick="showPth('setupPage')">←</button>
+      <div class="pth-logo-text">Generated Accounts</div>
+      <span class="badge">👑</span>
+    </div>
+    <div class="succ-body">
+      <div class="succ-hdr">
+        <div class="succ-chk">✓</div>
+        <div style="font-size:22px;font-weight:800;color:#e0e0ff" id="succTitle">Accounts Ready!</div>
+        <div style="font-size:14px;color:#7878a0;margin-top:4px" id="succSub">Gmail accounts generated</div>
+      </div>
+      <div id="accCards"></div>
+    </div>
+    <div class="succ-actions">
+      <button class="btn-rev-all" onclick="revealAll()">👁 Reveal All Passwords</button>
+      <button class="btn-copy-all" onclick="copyAll()">📋 COPY ALL DATA</button>
+      <button class="btn-gen-more" onclick="showPth('setupPage')">🔄 Generate More</button>
+    </div>
+  </div>
+
+  <!-- PRICING PAGE -->
+  <div class="pth-page" id="pricingPage">
+    <div class="pth-header">
+      <button class="back-btn" onclick="showPth('successPage')">←</button>
+      <div class="pth-logo-text">Get Premium</div>
+      <span></span>
+    </div>
+    <div class="pricing-body">
+      <div style="text-align:center;padding:16px 0 24px">
+        <h2 style="font-size:24px;font-weight:800;color:#e0e0ff">💎 Upgrade to Premium</h2>
+        <p style="color:#7878a0;font-size:13px;margin-top:6px">See real Gmail + Password instantly</p>
+      </div>
+      <div id="planCards"></div>
+    </div>
+  </div>
+
+  <!-- PAYMENT MODAL -->
+  <div class="modal-ov" id="payModal">
+    <div class="pay-box">
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px;color:#e0e0ff">💳 Complete Payment</div>
+      <div style="font-size:12px;color:#7878a0;margin-bottom:18px" id="payPlanLabel">Plan: 30 Days — ৳3300</div>
+      <div class="pay-method">
+        <div class="pay-logo" style="background:#E2136E">bK</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e0e0ff">bKash</div><div class="pay-num">01313267554</div></div>
+        <button class="pay-copy" onclick="cp('01313267554')">Copy</button>
+      </div>
+      <div class="pay-method">
+        <div class="pay-logo" style="background:#F05A28">Ng</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e0e0ff">Nagad</div><div class="pay-num">01313267551</div></div>
+        <button class="pay-copy" onclick="cp('01313267551')">Copy</button>
+      </div>
+      <div class="pay-note">📸 Send payment screenshot to Telegram after paying</div>
+      <button style="width:100%;background:#229ED9;border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Send Screenshot → @tarakislam1</button>
+      <button style="width:100%;background:transparent;border:2px solid #2a2a50;border-radius:12px;padding:12px;color:#7878a0;font-size:14px;cursor:pointer" onclick="closeM('payModal')">✕ Close</button>
+    </div>
+  </div>
+
+  <!-- PREMIUM POPUP -->
+  <div class="modal-ov" id="premiumPopup">
+    <div class="modal-box" style="border:2px solid #ffd600">
+      <div style="font-size:48px;margin-bottom:12px">👑</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:6px;color:#e0e0ff">Premium Required</div>
+      <div style="font-size:13px;color:#7878a0;margin-bottom:20px">Upgrade to see real Gmail accounts & passwords</div>
+      <button style="width:100%;background:var(--g1);border:none;border-radius:14px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="closeM('premiumPopup');showPth('pricingPage')">💎 Buy Premium Now</button>
+      <button style="width:100%;background:transparent;border:2px solid #229ED9;border-radius:14px;padding:12px;color:#229ED9;font-size:13px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Contact on Telegram</button>
+      <button style="width:100%;background:transparent;border:none;color:#7878a0;font-size:13px;padding:8px;cursor:pointer" onclick="closeM('premiumPopup')">✕ Close</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- Premium Required Popup -->
-<div class="modal-overlay" id="premiumPopup">
-  <div class="modal-box" style="border:2px solid var(--warning)">
-    <div style="font-size:48px;margin-bottom:12px">👑</div>
-    <div style="font-size:20px;font-weight:800;margin-bottom:6px">Premium Required</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Upgrade to see real Gmail accounts & passwords</div>
-    <button class="btn-buy-prem" onclick="closeM('premiumPopup');showPage('pricingPage')">💎 Buy Premium Now</button>
-    <button class="btn-tg-prem" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Contact on Telegram</button>
-    <button class="btn-close-pop" onclick="closeM('premiumPopup')">✕ Close</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     FIREBASE + APP LOGIC
-══════════════════════════════════════ -->
+<!-- ═══════════════════════════════════
+     FIREBASE + LOGIC
+═══════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, update, onValue }
+import { getDatabase, ref, get, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const FB = {
-  apiKey:"AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",
-  authDomain:"pro-tools-hub1-f4d55.firebaseapp.com",
-  databaseURL:"https://pro-tools-hub1-f4d55-default-rtdb.firebaseio.com",
-  projectId:"pro-tools-hub1-f4d55",
-  storageBucket:"pro-tools-hub1-f4d55.firebasestorage.app",
-  messagingSenderId:"637104919815",
-  appId:"1:637104919815:web:198ff9faf881971481a1a2"
+const FB={apiKey:"AIzaSyBsbZxWkz2dgcXjIhWopzBvHN9Xis9OWl8",authDomain:"pro-tools-hub1-f4d55.firebaseapp.com",databaseURL:"https://pro-tools-hub1-f4d55-default-rtdb.firebaseio.com",projectId:"pro-tools-hub1-f4d55",storageBucket:"pro-tools-hub1-f4d55.firebasestorage.app",messagingSenderId:"637104919815",appId:"1:637104919815:web:198ff9faf881971481a1a2"};
+const fapp=initializeApp(FB);
+const db=getDatabase(fapp);
+
+// State
+let curKey=null,curKD=null,isTrial=false;
+let totalAcc=1,genAccs=[],stopped=false,accIdx=0;
+let devId=localStorage.getItem('pth_device_id');
+if(!devId){devId='dv_'+Math.random().toString(36).substr(2,10)+Date.now().toString(36);localStorage.setItem('pth_device_id',devId);}
+
+const $=id=>document.getElementById(id);
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const ra=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+function showLoad(){$('loadingOverlay').classList.remove('hidden');}
+function hideLoad(){$('loadingOverlay').classList.add('hidden');}
+
+// Show PTH page
+window.showPth=id=>{
+  document.querySelectorAll('.pth-page').forEach(p=>p.classList.remove('active'));
+  $(id).classList.add('active');
+  $('pthShell').classList.add('active');
+  $('appShell').style.display='none';
 };
-const app = initializeApp(FB);
-const db  = getDatabase(app);
 
-// ── State ──
-let curKey=null, curKD=null, isTrial=false;
-let totalAcc=1, genAccs=[], stopped=false, accIdx=0;
+// Show Google automation
+function showGoogle(){
+  $('pthShell').classList.remove('active');
+  $('appShell').style.display='flex';
+}
 
-// ── Device ID ──
-let devId = localStorage.getItem('pth_device_id');
-if(!devId){ devId='dv_'+Math.random().toString(36).substr(2,10)+Date.now().toString(36); localStorage.setItem('pth_device_id',devId); }
-
-// ── Helpers ──
-const $  = id => document.getElementById(id);
-const sl = ms => new Promise(r=>setTimeout(r,ms));
-const ri = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
-const ra = arr => arr[Math.floor(Math.random()*arr.length)];
-
-function showLoad(){ $('loadingOverlay').classList.remove('hidden'); }
-function hideLoad(){ $('loadingOverlay').classList.add('hidden'); }
-window.showPage = id=>{ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); $(id).classList.add('active'); };
-window.closeM  = id=>{ $(id).classList.remove('show'); };
-window.cp = t=>{ navigator.clipboard.writeText(t).then(()=>toast('✅ Copied!')); };
+window.closeM=id=>$(id).classList.remove('show');
+window.cp=t=>navigator.clipboard.writeText(t).then(()=>toast('✅ Copied!'));
 
 function toast(msg,d=2500){
-  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),d);
 }
 
-// ── Notice ──
+// Notice
 onValue(ref(db,'notice'),snap=>{
-  const d=snap.val(), b=$('noticeBanner');
-  if(d&&d.active&&d.text){ b.textContent=d.text; b.classList.add('show'); }
+  const d=snap.val(),b=$('noticeBanner');
+  if(d&&d.active&&d.text){b.textContent=d.text;b.classList.add('show');}
   else b.classList.remove('show');
 });
 
-// ── Key Format ──
-window.fmtKey = inp=>{
+// Key format
+window.fmtKey=inp=>{
   let v=inp.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  let p=[]; for(let i=0;i<v.length&&i<12;i+=4) p.push(v.substr(i,4));
+  let p=[];for(let i=0;i<v.length&&i<12;i+=4)p.push(v.substr(i,4));
   inp.value=p.join('-');
 };
 
-// ── Validate Key ──
-window.validateKey = async()=>{
+// Validate key
+window.validateKey=async()=>{
   const raw=$('keyInput').value.trim();
-  if(raw.length!==14){ toast('❌ Enter valid key (XXXX-XXXX-XXXX)'); return; }
+  if(raw.length!==14){toast('❌ Enter valid key (XXXX-XXXX-XXXX)');return;}
   showLoad();
   try{
     const kp=raw.replace(/-/g,'_');
     const snap=await get(ref(db,'keys/'+kp));
-    if(!snap.exists()){ hideLoad(); toast('❌ Invalid key'); return; }
+    if(!snap.exists()){hideLoad();toast('❌ Invalid key');return;}
     const kd=snap.val();
-    if(!kd.active){ hideLoad(); toast('❌ Key disabled'); return; }
-    if(kd.expiry&&new Date(kd.expiry)<new Date()){ hideLoad(); toast('❌ Key expired'); return; }
+    if(!kd.active){hideLoad();toast('❌ Key disabled');return;}
+    if(kd.expiry&&new Date(kd.expiry)<new Date()){hideLoad();toast('❌ Key expired');return;}
     const used=kd.usedBy||{};
-    if(kd.type==='premium'&&Object.keys(used).length>0&&!used[devId]){ hideLoad(); toast('❌ Key used on another device'); return; }
-    if(kd.type==='trial'){
-      const ts=await get(ref(db,'trialUsed/'+devId));
-      if(ts.exists()){ hideLoad(); toast('❌ Trial already used on this device'); return; }
-    }
+    if(kd.type==='premium'&&Object.keys(used).length>0&&!used[devId]){hideLoad();toast('❌ Key used on another device');return;}
+    if(kd.type==='trial'){const ts=await get(ref(db,'trialUsed/'+devId));if(ts.exists()){hideLoad();toast('❌ Trial already used on this device');return;}}
     const upd={};
     upd['keys/'+kp+'/usedBy/'+devId]=devId;
-    if(kd.type==='trial') upd['trialUsed/'+devId]=true;
+    if(kd.type==='trial')upd['trialUsed/'+devId]=true;
     upd['activity/'+kp+'_'+devId]={key:raw,deviceId:devId,loginAt:new Date().toISOString(),type:kd.type};
     await update(ref(db),upd);
-    curKey=raw; curKD=kd; isTrial=kd.type==='trial';
+    curKey=raw;curKD=kd;isTrial=kd.type==='trial';
     localStorage.setItem('pth_saved_key',raw);
     hideLoad();
-    // Modal
-    if(isTrial){
-      $('uIcon').textContent='🔑'; $('uTitle').textContent='Trial Unlocked 🔑';
-      $('uSub').textContent='Limited access — upgrade for full features';
-      $('uInfo').textContent='Trial Key • 10 accounts • Blurred output';
-    } else {
-      $('uIcon').textContent='💎'; $('uTitle').textContent='Premium Unlocked 💎';
-      $('uSub').textContent='Full access granted!';
-      $('uInfo').textContent='Plan: '+(kd.plan||'Lifetime')+' • Expires: '+(kd.expiry?new Date(kd.expiry).toLocaleDateString():'Never');
-    }
+    if(isTrial){$('uIcon').textContent='🔑';$('uTitle').textContent='Trial Unlocked 🔑';$('uSub').textContent='Limited access — upgrade for full features';$('uInfo').textContent='Trial Key • 10 accounts • Blurred output';}
+    else{$('uIcon').textContent='💎';$('uTitle').textContent='Premium Unlocked 💎';$('uSub').textContent='Full access granted!';$('uInfo').textContent='Plan: '+(kd.plan||'Lifetime')+' • Expires: '+(kd.expiry?new Date(kd.expiry).toLocaleDateString():'Never');}
     $('unlockModal').classList.add('show');
-  }catch(e){ hideLoad(); toast('❌ '+e.message); }
+  }catch(e){hideLoad();toast('❌ '+e.message);}
 };
 
 window.startApp=()=>{
   closeM('unlockModal');
-  if(isTrial){ $('cntInp').value=10; $('cntInp').disabled=true; $('trialNote').style.display='block'; }
-  showPage('setupPage');
+  if(isTrial){$('cntInp').value=10;$('cntInp').disabled=true;$('trialNote').style.display='block';}
+  showPth('setupPage');
 };
 
-// ── Region ──
-window.selRegion=el=>{
-  document.querySelectorAll('.region-card').forEach(c=>{ c.classList.remove('sel'); c.querySelector('.region-chk').textContent=''; });
-  el.classList.add('sel'); el.querySelector('.region-chk').textContent='✓';
+window.selR=el=>{
+  document.querySelectorAll('.rc').forEach(c=>{c.classList.remove('sel');c.querySelector('.rc-chk').textContent='';});
+  el.classList.add('sel');el.querySelector('.rc-chk').textContent='✓';
 };
+window.chgC=d=>{if(isTrial)return;const i=$('cntInp');i.value=Math.max(1,Math.min(999,(parseInt(i.value)||1)+d));};
+window.clampC=()=>{if(isTrial){$('cntInp').value=10;return;}const i=$('cntInp');i.value=Math.max(1,Math.min(999,parseInt(i.value)||1));};
+window.logout=()=>{curKey=null;localStorage.removeItem('pth_saved_key');$('keyInput').value='';showPth('keyPage');};
 
-// ── Count ──
-window.chgCount=d=>{ if(isTrial)return; const i=$('cntInp'); i.value=Math.max(1,Math.min(999,(parseInt(i.value)||1)+d)); };
-window.clampCnt=()=>{ if(isTrial){$('cntInp').value=10;return;} const i=$('cntInp'); i.value=Math.max(1,Math.min(999,parseInt(i.value)||1)); };
-window.logout=()=>{ curKey=null; localStorage.removeItem('pth_saved_key'); $('keyInput').value=''; showPage('keyPage'); };
+// Data
+const FN=['Robert','James','William','Michael','David','John','Charles','Joseph','Thomas','Daniel','Matthew','Anthony','Mark','Donald','Steven','Paul','Andrew','Kenneth','Joshua','Kevin','Brian','George','Edward','Ronald','Timothy'];
+const LN=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Thompson','Lee','Walker','Hall','Allen','Young','King','Wright'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const GENDERS=['Male','Female','Rather not say'];
 
-// ── Data Generators ──
-const FN=['Alex','Jordan','Morgan','Riley','Casey','Taylor','Jamie','Avery','Cameron','Drew','Blake','Sky','River','Quinn','Sage','Noah','Liam','Emma','Olivia','Ava','Sophia','Mason','Ethan','Lucas'];
-const LN=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Thompson','Lee','Walker'];
-const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const GN=['Male','Female','Rather not say'];
-
-function randPass(){
-  const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
-  let p=''; for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)]; return p;
-}
+function randPass(){const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';let p='';for(let i=0;i<12;i++)p+=c[Math.floor(Math.random()*c.length)];return p;}
 function genAcc(){
-  const fn=ra(FN),ln=ra(LN);
-  const num=ri(10,999);
-  const email=fn.toLowerCase()+'.'+ln.toLowerCase()+num+'@gmail.com';
+  const fn=ra(FN),ln=ra(LN),num=ri(1000,9999);
+  const username=fn.toLowerCase()+ln.toLowerCase()+num;
+  const email=username+'@gmail.com';
   const pass=randPass();
-  const dob=ra(MN).substr(0,3)+' '+ri(1,28)+', '+ri(1985,2003);
-  const gender=ra(GN);
-  return {fn,ln,email,pass,dob,gender};
+  const month=ra(MONTHS),day=ri(1,28),year=ri(1985,2003);
+  const gender=ra(GENDERS);
+  return{fn,ln,username,email,pass,month,day,year,gender};
 }
 
-// ── Automation ──
+// ── AUTOMATION ──
 window.startAuto=()=>{
   totalAcc=isTrial?10:(parseInt($('cntInp').value)||1);
-  genAccs=[]; stopped=false; accIdx=0;
-  showPage('autoPage');
+  genAccs=[];stopped=false;accIdx=0;
+  showGoogle();
+  resetPanels();
   runNext();
 };
 
 window.stopAuto=()=>{
   stopped=true;
-  if(genAccs.length>0) showSuccess();
-  else showPage('setupPage');
+  if(genAccs.length>0)showSuccess();
+  else showPth('setupPage');
 };
 
-function updProgress(){
-  $('autoPfill').style.width=(accIdx/totalAcc*100)+'%';
-  $('autoStat').textContent='Creating: '+accIdx+' / '+totalAcc;
+function updStat(){
+  $('statTxt').textContent='Creating: '+accIdx+' / '+totalAcc;
 }
 
 async function runNext(){
   if(stopped)return;
-  if(accIdx>=totalAcc){ showSuccess(); return; }
-  updProgress();
+  if(accIdx>=totalAcc){showSuccess();return;}
+  updStat();
   const acc=genAcc();
   await animateAcc(acc);
-  if(!stopped){ genAccs.push(acc); accIdx++; updProgress(); await sl(500); runNext(); }
+  if(!stopped){
+    genAccs.push(acc);accIdx++;updStat();
+    await sl(400);
+    runNext();
+  }
 }
 
-// ── Field Helpers ──
-function cursor(){ return '<span class="g-cursor"></span>'; }
-function setAct(id){ const e=$(id); e.classList.add('act'); e.classList.remove('done'); }
-function setDone(id){ const e=$(id); e.classList.remove('act'); e.classList.add('done'); }
-function dot(i,s){ const e=$('gd'+i); e.className='g-dot'+(s==='active'?' active':s==='done'?' done':''); }
-
-function showF(id){
-  const el=$(id); el.style.display='block';
-  el.style.opacity='0'; el.style.transform='translateY(12px)';
-  requestAnimationFrame(()=>{ el.style.transition='all 0.4s'; el.style.opacity='1'; el.style.transform='translateY(0)'; });
-}
-
-function resetForm(){
-  ['gf_ln','gf_dob','gf_gen','gf_em','gf_pw','gf_cp'].forEach(f=>$(f).style.display='none');
-  ['gi_fn','gi_ln','gi_dob','gi_em','gi_pw','gi_cp'].forEach(id=>{ const e=$(id); e.innerHTML=''; e.className='g-input'+(id==='gi_pw'||id==='gi_cp'?' pass-field':''); });
-  for(let i=0;i<4;i++) dot(i,'');
-  dot(0,'active');
-  $('gNextBtn').className='g-next-btn';
-  $('emAvail').style.display='none';
-  $('checkOv').className='checking-ov';
-  $('gUrl').textContent='accounts.google.com/signup';
-  $('gi_gen_val').textContent='';
-}
-
-async function typeIn(id,text,spd=70){
+// ── PANEL HELPERS ──
+function showPanel(id){
+  ['panel0','panel1','panel2','panel3'].forEach(p=>{
+    const el=$(p);
+    el.classList.remove('active');
+    el.style.animation='';
+  });
+  $('checkPanel').style.display='none';
   const el=$(id);
-  setAct(id);
-  el.innerHTML=cursor();
+  el.style.animation='fadeUp 0.35s ease';
+  el.classList.add('active');
+}
+
+function resetPanels(){
+  ['panel0','panel1','panel2','panel3'].forEach(p=>$(p).classList.remove('active'));
+  $('checkPanel').style.display='none';
+  // Reset all inputs
+  $('inp_fn').innerHTML='';$('inp_ln').innerHTML='';
+  $('inp_em').innerHTML='';$('inp_pw').innerHTML='';
+  $('ln-wrap').style.opacity='0';
+  $('dob_m').textContent='Month';$('dob_d').textContent='Day';$('dob_y').textContent='Year';
+  $('dob_m').classList.remove('typing-dob');$('dob_d').classList.remove('typing-dob');$('dob_y').classList.remove('typing-dob');
+  $('gender_val').textContent='Gender';$('gender_val').style.color='#80868b';
+  $('em_avail').style.display='none';
+  $('showPwCb').textContent='';
+  ['next0','next1','next2','next3'].forEach(n=>{$(n).classList.remove('show');});
+  ['cs0','cs1','cs2','cs3'].forEach((c,i)=>{
+    $(c).className='check-step';$('csi'+i).textContent='';$('csi'+i).style.background='#e8eaed';
+  });
+  $('checkMainTitle').textContent='Verifying your information';
+  $('checkMainSub').textContent='Please wait a moment...';
+  showPanel('panel0');
+}
+
+function cur(){return '<span class="cur"></span>';}
+
+async function typeIn(el,text,spd=75){
+  el.classList.add('typing');el.classList.remove('filled');
+  el.innerHTML=cur();
   for(let i=0;i<text.length;i++){
     if(stopped)return;
-    el.innerHTML=text.substr(0,i+1)+cursor();
-    el.scrollIntoView({behavior:'smooth',block:'nearest'});
-    await sl(spd+ri(-10,12));
+    el.innerHTML=text.substr(0,i+1)+cur();
+    await sl(spd+ri(-8,12));
   }
-  setDone(id);
+  el.classList.remove('typing');el.classList.add('filled');
 }
 
 async function animateAcc(acc){
-  resetForm();
-
-  // ── Step 0: Name ──
-  $('gTitle').textContent='Create your Google Account';
-  $('gSub').textContent='Enter your name to get started';
-  await typeIn('gi_fn',acc.fn,85);
+  // ── PANEL 0: Name ──
+  showPanel('panel0');
+  $('inp_fn').innerHTML=cur();
+  await typeIn($('inp_fn'),acc.fn,85);
+  await sl(300);
+  // Last name appears
+  $('ln-wrap').style.opacity='1';
+  $('inp_ln').innerHTML=cur();
+  await sl(200);
+  await typeIn($('inp_ln'),acc.ln,85);
   await sl(350);
-  showF('gf_ln'); await sl(200);
-  await typeIn('gi_ln',acc.ln,85);
-  await sl(400);
-  $('gNextBtn').classList.add('on');
-  await sl(500);
+  $('next0').classList.add('show');
+  await sl(700);
 
-  // ── Step 1: Birthday + Gender ──
-  dot(0,'done'); dot(1,'active');
-  $('gUrl').textContent='accounts.google.com/signup/birthdate';
-  $('gTitle').textContent="What's your birthday?";
-  $('gSub').textContent='We use this to verify your age';
-  $('gNextBtn').classList.remove('on');
-  showF('gf_dob'); await sl(250);
-  await typeIn('gi_dob',acc.dob,72);
+  // ── PANEL 1: DOB + Gender ──
+  showPanel('panel1');
+  await sl(300);
+  // Month
+  $('dob_m').classList.add('typing-dob');
+  await sl(400);
+  $('dob_m').textContent=acc.month;
+  $('dob_m').classList.remove('typing-dob');
+  await sl(250);
+  // Day
+  $('dob_d').classList.add('typing-dob');
   await sl(350);
-  showF('gf_gen');
-  $('gi_gen_val').textContent=acc.gender;
-  await sl(600);
-  $('gNextBtn').classList.add('on');
-  await sl(500);
-
-  // ── Step 2: Gmail ──
-  dot(1,'done'); dot(2,'active');
-  $('gUrl').textContent='accounts.google.com/signup/username';
-  $('gTitle').textContent='Choose your Gmail address';
-  $('gSub').textContent='This will be your Google Account username';
-  $('gNextBtn').classList.remove('on');
-  showF('gf_em'); await sl(250);
-  await typeIn('gi_em',acc.email,52);
+  $('dob_d').textContent=acc.day;
+  $('dob_d').classList.remove('typing-dob');
+  await sl(250);
+  // Year
+  $('dob_y').classList.add('typing-dob');
+  await sl(300);
+  $('dob_y').textContent=acc.year;
+  $('dob_y').classList.remove('typing-dob');
   await sl(400);
-  $('emAvail').style.display='block';
+  // Gender
+  $('gender_val').style.color='#202124';
+  $('gender_val').textContent=acc.gender;
   await sl(500);
-  $('gNextBtn').classList.add('on');
-  await sl(500);
+  $('next1').classList.add('show');
+  await sl(700);
 
-  // ── Step 3: Password ──
-  dot(2,'done'); dot(3,'active');
-  $('gUrl').textContent='accounts.google.com/signup/password';
-  $('gTitle').textContent='Create a strong password';
-  $('gSub').textContent='Use 8+ characters — mix letters, numbers & symbols';
-  $('gNextBtn').classList.remove('on');
-  showF('gf_pw'); await sl(250);
-  await typeIn('gi_pw','●'.repeat(acc.pass.length),58);
-  await sl(350);
-  showF('gf_cp'); await sl(200);
-  await typeIn('gi_cp','●'.repeat(acc.pass.length),50);
+  // ── PANEL 2: Gmail ──
+  showPanel('panel2');
+  await sl(300);
+  $('inp_em').innerHTML=cur();
+  // Type only username part
+  const uname=acc.username;
+  for(let i=0;i<uname.length;i++){
+    if(stopped)return;
+    $('inp_em').innerHTML=uname.substr(0,i+1)+cur();
+    await sl(52+ri(-8,10));
+  }
+  await sl(500);
+  $('em_avail').style.display='block';
+  await sl(500);
+  $('next2').classList.add('show');
+  await sl(700);
+
+  // ── PANEL 3: Password ──
+  showPanel('panel3');
+  await sl(300);
+  const dots='•'.repeat(acc.pass.length);
+  $('inp_pw').innerHTML=cur();
+  for(let i=0;i<dots.length;i++){
+    if(stopped)return;
+    $('inp_pw').innerHTML=dots.substr(0,i+1)+cur();
+    await sl(58+ri(-8,10));
+  }
   await sl(400);
-  $('gNextBtn').classList.add('on');
-  await sl(500);
+  $('next3').classList.add('show');
+  await sl(700);
 
-  // ── Checking ──
-  dot(3,'done');
-  $('gUrl').textContent='accounts.google.com/signup/verify';
-  if(!stopped) await runChecking();
+  // ── PANEL 4: Checking ──
+  if(stopped)return;
+  await runChecking();
 }
 
 async function runChecking(){
-  const ov=$('checkOv'); ov.classList.add('show');
-  const ci=['ci0','ci1','ci2','ci3'], cd=['cd0','cd1','cd2','cd3'];
-  const ct=['Checking username availability','Validating your information','Setting up account security','Creating your Google Account'];
-  ci.forEach((c,i)=>{ $(c).className='check-item'; $(cd[i]).innerHTML=''; $(cd[i]).style.background='#e8eaed'; });
+  ['panel0','panel1','panel2','panel3'].forEach(p=>$(p).classList.remove('active'));
+  const cp=$('checkPanel');
+  cp.style.display='flex';
+  cp.style.flexDirection='column';
+  cp.style.alignItems='center';
+  cp.style.justifyContent='center';
+  cp.style.flex='1';
+  cp.style.padding='40px 24px';
+  cp.style.animation='fadeUp 0.35s ease';
+
+  const csteps=['cs0','cs1','cs2','cs3'];
+  const cicons=['csi0','csi1','csi2','csi3'];
+  const ctitles=[
+    'Checking username availability',
+    'Validating your information',
+    'Setting up account security',
+    'Creating your Google Account'
+  ];
+
+  csteps.forEach((s,i)=>{$(s).className='check-step';$(cicons[i]).textContent='';$(cicons[i]).style.background='#e8eaed';});
+
   for(let i=0;i<4;i++){
     if(stopped)break;
-    $('checkTitle').textContent=ct[i];
-    $(ci[i]).className='check-item act';
-    $(cd[i]).style.background='#1a73e8';
-    $(cd[i]).innerHTML='<div style="width:8px;height:8px;border-radius:50%;background:#fff"></div>';
-    await sl(850);
-    $(ci[i]).className='check-item ok';
-    $(cd[i]).style.background='#34A853';
-    $(cd[i]).innerHTML='✓';
-    $(cd[i]).style.color='#fff';
-    $(cd[i]).style.fontSize='11px';
+    $('checkMainTitle').textContent=ctitles[i];
+    $(csteps[i]).className='check-step act';
+    $(cicons[i]).style.background='#1a73e8';
+    $(cicons[i]).innerHTML='<div style="width:8px;height:8px;border-radius:50%;background:#fff"></div>';
+    await sl(900);
+    $(csteps[i]).className='check-step ok';
+    $(cicons[i]).style.background='#34A853';
+    $(cicons[i]).textContent='✓';
+    $(cicons[i]).style.fontSize='11px';
   }
-  $('checkTitle').textContent='Account created successfully! ✓';
-  $('checkSub').textContent='';
-  await sl(700);
-  ov.classList.remove('show');
+  if(!stopped){
+    $('checkMainTitle').textContent='Account created successfully!';
+    $('checkMainSub').textContent='';
+    await sl(600);
+  }
 }
 
-// ── Success Page ──
+// ── SUCCESS ──
 function showSuccess(){
-  const c=$('accCards'); c.innerHTML='';
+  $('appShell').style.display='none';
+  $('pthShell').classList.add('active');
+  const c=$('accCards');c.innerHTML='';
   $('succTitle').textContent=genAccs.length+' Accounts Generated! 🎉';
   $('succSub').textContent=genAccs.length+' Gmail accounts ready';
-
   genAccs.forEach((acc,i)=>{
     const card=document.createElement('div');
-    card.className='acc-card'; card.id='card_'+i;
+    card.className='acc-card';
     if(isTrial){
-      card.innerHTML=`
-        <div class="acc-num">Account #${i+1}</div>
-        <div class="acc-row"><div class="acc-label">Gmail Address</div>
-          <div class="acc-val"><span class="blur">${acc.email}</span></div></div>
-        <div class="acc-row"><div class="acc-label">Password</div>
-          <div class="acc-val"><span class="blur">${acc.pass}</span></div></div>
-        <div class="lock-ov" onclick="showPremPop()">
-          <div style="font-size:30px">🔒</div>
-          <div style="font-size:12px;color:var(--warning);font-weight:700">Tap to Unlock — Premium Required</div>
-        </div>`;
-    } else {
-      card.innerHTML=`
-        <div class="acc-num">Account #${i+1}</div>
-        <div class="acc-row"><div class="acc-label">Gmail Address</div>
-          <div class="acc-val">
-            <span id="em_${i}">${acc.email}</span>
-            <button class="copy-sm" onclick="cp('${acc.email}')">Copy</button>
-          </div></div>
-        <div class="acc-row"><div class="acc-label">Password</div>
-          <div class="acc-val">
-            <span id="pw_${i}" class="blur">${acc.pass}</span>
-            <button class="reveal-btn" id="rb_${i}" onclick="togRev(${i},'${acc.pass}')">Show</button>
-            <button class="copy-sm" onclick="cp('${acc.pass}')">Copy</button>
-          </div></div>`;
+      card.innerHTML=`<div class="acc-num">Account #${i+1}</div>
+        <div class="acc-row"><div class="acc-label">Gmail Address</div><div class="acc-val"><span class="blur">${acc.email}</span></div></div>
+        <div class="acc-row"><div class="acc-label">Password</div><div class="acc-val"><span class="blur">${acc.pass}</span></div></div>
+        <div class="lock-ov" onclick="showPremPop()"><div style="font-size:30px">🔒</div><div style="font-size:12px;color:#ffd600;font-weight:700">Tap to Unlock — Premium Required</div></div>`;
+    }else{
+      card.innerHTML=`<div class="acc-num">Account #${i+1}</div>
+        <div class="acc-row"><div class="acc-label">Gmail Address</div><div class="acc-val"><span id="em_${i}">${acc.email}</span><button class="copy-sm" onclick="cp('${acc.email}')">Copy</button></div></div>
+        <div class="acc-row"><div class="acc-label">Password</div><div class="acc-val"><span id="pw_${i}" class="blur">${acc.pass}</span><button class="rev-btn" id="rb_${i}" onclick="togRev(${i},'${acc.pass}')">Show</button><button class="copy-sm" onclick="cp('${acc.pass}')">Copy</button></div></div>`;
     }
     c.appendChild(card);
   });
-
-  if(isTrial){
-    $('btnRevAll').onclick=showPremPop;
-    $('btnCopyAll').onclick=showPremPop;
-  }
-  showPage('successPage');
+  if(isTrial){document.querySelector('.btn-rev-all').onclick=showPremPop;document.querySelector('.btn-copy-all').onclick=showPremPop;}
+  showPth('successPage');
 }
 
-window.togRev=(i,pass)=>{
-  const el=$('pw_'+i), btn=$('rb_'+i);
-  if(el.classList.contains('blur')){ el.classList.remove('blur'); btn.textContent='Hide'; }
-  else { el.classList.add('blur'); btn.textContent='Show'; }
-};
-window.revealAll=()=>{
-  if(isTrial){showPremPop();return;}
-  genAccs.forEach((_,i)=>{ const e=$('pw_'+i),b=$('rb_'+i); if(e){e.classList.remove('blur');if(b)b.textContent='Hide';} });
-  toast('✅ All passwords revealed');
-};
-window.copyAll=()=>{
-  if(isTrial){showPremPop();return;}
-  let t='PRO TOOLS HUB — Generated Accounts\n'+'='.repeat(36)+'\n';
-  genAccs.forEach((a,i)=>{ t+=`Account ${i+1}:\nEmail: ${a.email}\nPassword: ${a.pass}\n\n`; });
-  navigator.clipboard.writeText(t).then(()=>toast('✅ All data copied!'));
-};
-window.showPremPop=()=>{ $('premiumPopup').classList.add('show'); };
+window.togRev=(i,pass)=>{const e=$('pw_'+i),b=$('rb_'+i);if(e.classList.contains('blur')){e.classList.remove('blur');b.textContent='Hide';}else{e.classList.add('blur');b.textContent='Show';}};
+window.revealAll=()=>{if(isTrial){showPremPop();return;}genAccs.forEach((_,i)=>{const e=$('pw_'+i),b=$('rb_'+i);if(e){e.classList.remove('blur');if(b)b.textContent='Hide';}});toast('✅ All passwords revealed');};
+window.copyAll=()=>{if(isTrial){showPremPop();return;}let t='PRO TOOLS HUB — Generated Accounts\n'+'='.repeat(36)+'\n';genAccs.forEach((a,i)=>{t+=`Account ${i+1}:\nEmail: ${a.email}\nPassword: ${a.pass}\n\n`;});navigator.clipboard.writeText(t).then(()=>toast('✅ All data copied!'));};
+window.showPremPop=()=>$('premiumPopup').classList.add('show');
 
-// ── Pricing ──
+// ── PRICING ──
 async function loadPlans(){
-  try{ const s=await get(ref(db,'plans')); renderPlans(s.val()||defPlans()); }
-  catch{ renderPlans(defPlans()); }
+  try{const s=await get(ref(db,'plans'));renderPlans(s.val()||defPlans());}
+  catch{renderPlans(defPlans());}
 }
-function defPlans(){
-  return [{name:'7 Days',days:7,price:1200,discount:0,popular:false},{name:'15 Days',days:15,price:2200,discount:0,popular:false},{name:'30 Days',days:30,price:3300,discount:0,popular:true},{name:'Lifetime',days:0,price:5500,discount:0,popular:false}];
-}
+function defPlans(){return[{name:'7 Days',days:7,price:1200,discount:0,popular:false},{name:'15 Days',days:15,price:2200,discount:0,popular:false},{name:'30 Days',days:30,price:3300,discount:0,popular:true},{name:'Lifetime',days:0,price:5500,discount:0,popular:false}];}
 function renderPlans(plans){
   const arr=Array.isArray(plans)?plans:Object.values(plans);
   $('planCards').innerHTML='';
   arr.forEach(p=>{
-    const disc=parseInt(p.discount)||0, orig=parseInt(p.price)||0;
+    const disc=parseInt(p.discount)||0,orig=parseInt(p.price)||0;
     const final=disc>0?Math.round(orig*(1-disc/100)):orig;
     const d=document.createElement('div');
     d.className='plan-card'+(p.popular?' pop':'');
-    d.innerHTML=`
-      ${p.popular?'<div class="pop-tag">🔥 POPULAR</div>':''}
-      <div class="plan-name">${p.name}</div>
-      <div class="plan-dur">${p.days===0?'Lifetime access':p.days+' days access'}</div>
-      <div>${disc>0?'<div class="plan-orig">৳'+orig+'</div>':''}</div>
-      <div class="plan-price">৳${final}<span style="font-size:15px;color:var(--muted)">/plan</span>${disc>0?'<span class="disc-badge">'+disc+'% OFF</span>':''}</div>
-      <ul class="plan-feats">
-        <li>Unlimited account generation</li>
-        <li>Real Gmail + Password visible</li>
-        <li>Copy all data instantly</li>
-        <li>Priority server access</li>
-        <li>${p.days===0?'Never expires':'Valid for '+p.days+' days'}</li>
-      </ul>
+    d.innerHTML=`${p.popular?'<div class="pop-tag">🔥 POPULAR</div>':''}
+      <div style="font-size:18px;font-weight:800;color:#e0e0ff;margin-bottom:4px">${p.name}</div>
+      <div style="font-size:12px;color:#7878a0;margin-bottom:14px">${p.days===0?'Lifetime access':p.days+' days access'}</div>
+      ${disc>0?'<div style="font-size:14px;color:#7878a0;text-decoration:line-through">৳'+orig+'</div>':''}
+      <div style="font-size:32px;font-weight:900;color:#e0e0ff">৳${final}<span style="font-size:15px;color:#7878a0">/plan</span>${disc>0?'<span style="display:inline-block;background:#00e676;color:#000;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:8px">'+disc+'% OFF</span>':''}</div>
+      <ul class="plan-feats"><li>Unlimited account generation</li><li>Real Gmail + Password visible</li><li>Copy all data instantly</li><li>Priority server access</li><li>${p.days===0?'Never expires':'Valid for '+p.days+' days'}</li></ul>
       <button class="btn-buy" onclick="openPay('${p.name}',${final})">Buy Now →</button>`;
     $('planCards').appendChild(d);
   });
 }
-window.openPay=(name,price)=>{ $('payPlanLabel').textContent='Plan: '+name+' — ৳'+price; $('payModal').classList.add('show'); };
+window.openPay=(name,price)=>{$('payPlanLabel').textContent='Plan: '+name+' — ৳'+price;$('payModal').classList.add('show');};
 
-// ── Session Restore ──
+// ── SESSION RESTORE ──
 async function restore(){
   showLoad();
   const saved=localStorage.getItem('pth_saved_key');
-  if(!saved){ hideLoad(); return; }
+  if(!saved){hideLoad();return;}
   try{
     const kp=saved.replace(/-/g,'_');
     const snap=await get(ref(db,'keys/'+kp));
-    if(!snap.exists()){ hideLoad(); return; }
+    if(!snap.exists()){hideLoad();return;}
     const kd=snap.val();
-    if(!kd.active||(kd.expiry&&new Date(kd.expiry)<new Date())){ hideLoad(); return; }
-    if(!(kd.usedBy||{})[devId]){ hideLoad(); return; }
-    curKey=saved; curKD=kd; isTrial=kd.type==='trial';
-    if(isTrial){ $('cntInp').value=10; $('cntInp').disabled=true; $('trialNote').style.display='block'; }
-    hideLoad(); showPage('setupPage');
-  }catch{ hideLoad(); }
+    if(!kd.active||(kd.expiry&&new Date(kd.expiry)<new Date())){hideLoad();return;}
+    if(!(kd.usedBy||{})[devId]){hideLoad();return;}
+    curKey=saved;curKD=kd;isTrial=kd.type==='trial';
+    if(isTrial){$('cntInp').value=10;$('cntInp').disabled=true;$('trialNote').style.display='block';}
+    hideLoad();showPth('setupPage');
+  }catch{hideLoad();}
 }
+
+// ── INIT ──
+// Initially hide appShell, show pthShell
+$('appShell').style.display='none';
+$('pthShell').classList.add('active');
 
 loadPlans();
 restore();
