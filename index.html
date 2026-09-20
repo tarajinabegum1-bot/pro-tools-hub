@@ -696,15 +696,29 @@ body{font-family:'Roboto',sans-serif;background:#fff;overflow:hidden;height:100v
       <div class="pay-method">
         <div class="pay-logo" style="background:#E2136E">bK</div>
         <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e0e0ff">bKash</div><div class="pay-num">01313267551</div></div>
-        <button class="pay-copy" onclick="cp('01313267554')">Copy</button>
+        <button class="pay-copy" onclick="cp('01313267551')">Copy</button>
       </div>
       <div class="pay-method">
         <div class="pay-logo" style="background:#F05A28">Ng</div>
         <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#e0e0ff">Nagad</div><div class="pay-num">01313267551</div></div>
         <button class="pay-copy" onclick="cp('01313267551')">Copy</button>
       </div>
+      <!-- USDT TRC20 -->
+<div class="pay-method" style="border:1px solid #26a17b; border-radius:12px; padding:15px; margin-top:10px;">
+  <div class="pay-logo" style="background:#26a17b;">USDT</div>
+  <div style="flex:1">
+    <div style="font-size:13px; font-weight:700; color:#e0e0ff;">USDT TRC20</div>
+    <div class="pay-num" style="font-size:11px; word-break:break-all;">TBf8Mh5DwCCHH4evg4AdVdQ26XLNmpxQts</div>
+  </div>
+  <button class="pay-copy" onclick="cp('TBf8Mh5DwCCHH4evg4AdVdQ26XLNmpxQts')">Copy</button>
+</div>
+<!-- USDT QR Code -->
+<div style="text-align:center; margin-top:10px;">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TBf8Mh5DwCCHH4evg4AdVdQ26XLNmpxQts" style="border-radius:10px; border:3px solid #26a17b; width:150px;"/>
+  <p style="color:#26a17b; font-size:12px; margin-top:5px;">📱 QR Code scan করুন</p>
+</div>
       <div class="pay-note">📸 Send payment screenshot to Telegram after paying</div>
-      <button style="width:100%;background:#229ED9;border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="window.open('https://t.me/tarakislam1','_blank')">✈️ Send Screenshot → @tarakislam1</button>
+      <button style="width:100%;background:#229ED9;border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="window.open('https://t.me/paymentsystem111_bot','_blank')">✈️ Send Screenshot → @tarakislam1</button>
       <button style="width:100%;background:transparent;border:2px solid #2a2a50;border-radius:12px;padding:12px;color:#7878a0;font-size:14px;cursor:pointer" onclick="closeM('payModal')">✕ Close</button>
     </div>
   </div>
